@@ -18,16 +18,32 @@ public final class Hardware {
 
     private HardwareMap hwmap = null;
 
+    private DcMotor initMotorWithoutEncoder(String name)
+    {
+        DcMotor motor = hwmap.dcMotor.get(name);
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        return motor;
+    }
+
+    private DcMotor initMotorWithEncoder(String name)
+    {
+        DcMotor motor = hwmap.dcMotor.get(name);
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_WITH_ENCODER);
+        return motor;
+    }
+
     public void initBackMotors()
     {
-        leftBackMotor = hwmap.dcMotor.class("leftBackMotor");
-        rightBackMotor = hwmap.dcMotor.class("rightBackMotor");
+        leftBackMotor = initMotorWithoutEncoder("leftBackMotor");
+        rightBackMotor = initMotorWithoutEncoder("rightBackMotor");
     }
 
     public void initFrontMotors()
     {
-        leftFrontMotor = hwmap.dcMotor.class("leftFrontMotor");
-        rightFrontMotor = hwmap.dcMotor.class("rightFrontMotor");
+        leftFrontMotor = initMotorWithoutEncoder("leftFrontMotor");
+        rightFrontMotor = initMotorWithoutEncoder("rightFrontMotor");
     }
 
     public void initMotors()
@@ -52,5 +68,27 @@ public final class Hardware {
         rightBackMotor.setPower(right * MAX_LIMIT);
     }
 
-    
+    public void tractiuneFata(double left,double right)
+    {
+        left = clamp(left, -1, 1);
+        right = clamp(right, -1, 1);
+
+        leftFrontMotor.setPower(left * MAX_LIMIT);
+        rightFrontMotor.setPower(right * MAX_LIMIT);
+    }
+
+    public void tractiuneIntegrala(double i, double j)
+    {
+        tractiuneFata(i,j);
+        tractiuneSpate(i,j);
+
+    }
+
+    public void init(HardwareMap map)
+    {
+        hwmap = map;
+
+    }
+
+
 }
