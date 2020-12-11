@@ -30,20 +30,53 @@ public final class DriveMotors(hwMap: HardwareMap){
 
     public void initBackMotors()
     {
-        leftBackMotor = initMotorWithoutEncoder("leftBackMotor");
-        rightBackMotor = initMotorWithoutEncoder("rightBackMotor");
+        leftRear = initMotorWithoutEncoder("leftRear");
+        rightrear = initMotorWithoutEncoder("rightRear");
     }
 
     public void initFrontMotors()
     {
-        leftFrontMotor = initMotorWithoutEncoder("leftFrontMotor");
-        rightFrontMotor = initMotorWithoutEncoder("rightFrontMotor");
+        leftFront = initMotorWithoutEncoder("leftFront");
+        rightFront = initMotorWithoutEncoder("rightFront");
     }
 
     public void initMotors()
     {
         initBackMotors();
         initFrontMotors();
+    }
+
+    public static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    public void backPower(double left, double right)
+    {
+        left = clamp(left, -1, 1);
+        right = clamp(right, -1, 1);
+
+        leftRear.setPower(left);
+        rightRear.setPower(right);
+    }
+
+    public void frontPower(double left, double right)
+    {
+        left = clamp(left, -1, 1);
+        right = clamp(right, -1, 1);
+
+        leftFront.setPower(left);
+        rightFront.setPower(right);
+    }
+
+    public void total(double left, double right)
+    {
+        backPower(left, right);
+        frontPower(left, right);
+    }
+
+    public void stop()
+    {
+        total(0,0);
     }
 
 }

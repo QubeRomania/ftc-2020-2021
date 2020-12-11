@@ -9,9 +9,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 class Intake(hwMap: HardwareMap){
     private DcMotor intakeMotor = hwmap.dcMotor.get("intakeMotor");
 
-    public void setIntakeMotor(double power)
+    public void setIntakePower(double power)
     {
-        intakeMotor.setPower(power)e;
+        intakeMotor.setPower(power);
     }
 
     public void stopIntake()
