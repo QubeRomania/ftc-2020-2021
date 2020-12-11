@@ -20,5 +20,11 @@ import org.openftc.easyopencv.OpenCvPipeline
 
 @Config
 class AutonomyBase{
-    
+
+    public void preInit(){
+        webcam.openC
+    }
+
+    val webcam = OpenCvCamera();
+
 }
