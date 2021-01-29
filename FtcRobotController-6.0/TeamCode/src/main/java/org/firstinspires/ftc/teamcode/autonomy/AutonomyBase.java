@@ -12,6 +12,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,8 @@ public class AutonomyBase extends MecanumDrive {
     public TrajectoryFollower follower;
 
     BNO055IMU imu;
-    DcMotor leftFront, leftRear, rightRear, rightFront;
+    DcMotor leftFront, leftRear, rightRear, rightFront, intakeMotor;
+    Servo pistonServo, blockServo;
 
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
             28.0, 30.0, 0.0,
@@ -62,10 +64,10 @@ public class AutonomyBase extends MecanumDrive {
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
 
-        leftFront = hardwareMap.get(DcMotor.class, "front_left_motor");
-        leftRear = hardwareMap.get(DcMotor.class, "back_left_motor");
-        rightRear = hardwareMap.get(DcMotor.class, "back_right_motor");
-        rightFront = hardwareMap.get(DcMotor.class, "front_right_motor");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotor.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotor.class, "rightRear");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
