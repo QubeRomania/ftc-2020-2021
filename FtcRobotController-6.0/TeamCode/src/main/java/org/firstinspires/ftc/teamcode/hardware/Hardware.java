@@ -15,7 +15,7 @@ public final class Hardware {
     public DcMotor rightFrontMotor = null;
     public DcMotor intakeMotor = null;
     public DcMotor outtakeMotor = null;
-    public Servo servoBox = null;
+    public DcMotor wobbleMotor = null;
 
     //other things
     private HardwareMap hwMap = null;
@@ -63,17 +63,9 @@ public final class Hardware {
     {
         outtakeMotor = initMotorWithoutEncoder("outtakeMotor");
     }
-
-    private Servo initServo(String name)
+    public void initWobble()
     {
-        Servo servo = hwMap.servo.get(name);
-        servo.setPosition(0);
-        return servo;
-    }
-
-    public void initServos()
-    {
-        servoBox = initServo("servoBox");
+        wobbleMotor = initMotorWithEncoder("wobbleMotor");
     }
 
     public void initMotors() {
@@ -81,12 +73,12 @@ public final class Hardware {
         initFrontMotors();
         initIntake();
         initOuttake();
+        initWobble();
     }
 
     public void initHardware(HardwareMap map) {
         hwMap = map;
         initMotors();
-        initServos();
     }
 
     //MotorsPower
@@ -110,16 +102,17 @@ public final class Hardware {
         rightFrontMotor.setPower(right);
     }
 
-    public void totalPower (double i, double j, double k, double l, double z, double w){
+    public void totalPower (double i, double j, double k, double l, double z, double w, double q){
         frontPower(i, j);
         backPower(k, l);
         z = clamp(z,-1,1);
         intakeMotor.setPower(z);
         outtakeMotor.setPower(w);
+        wobbleMotor.setPower(q);
     }
 
     public void stop()
     {
-        totalPower(0,0,0,0,0,0);
+        totalPower(0,0,0,0,0,0,0);
     }
 }

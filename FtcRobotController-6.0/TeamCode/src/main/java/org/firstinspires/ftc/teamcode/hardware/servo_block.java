@@ -7,15 +7,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class servo_piston {
+public class servo_block {
     public Servo servo = null;
 
-    public static double SERVO_RELEASE = 0.53;
-    public static double SERVO_CLOSE = 0.0;
+    public static double SERVO_RELEASE = 0.7;
+    public static double SERVO_CLOSE = 0.55;
 
-    public void initPiston(HardwareMap hwMap)
+    public void initBlock(HardwareMap hwMap)
     {
-        servo = hwMap.get(Servo.class, "servoPiston");
+        servo = hwMap.get(Servo.class, "servoBlock");
         close();
     }
 

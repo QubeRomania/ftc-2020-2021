@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.teleopGame;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.servo_block;
 import org.firstinspires.ftc.teamcode.hardware.servo_piston;
+import org.firstinspires.ftc.teamcode.hardware.servo_wobble;
 
 @TeleOp
 public class driveTele extends LinearOpMode {
@@ -23,21 +26,36 @@ public class driveTele extends LinearOpMode {
 
     double intakePower = 0;
     double outtakePower = 0;
+    double wobblePower = 0;
 
     Boolean boxIsUp = Boolean.FALSE;
     Boolean cheie = Boolean.FALSE;
     Boolean cheiePiston = Boolean.FALSE;
     Boolean isRunning = Boolean.FALSE;
     Boolean cheieIntake = Boolean.FALSE;
+    Boolean cheieOutake = Boolean.FALSE;
+    Boolean isMax = Boolean.FALSE;
+    Boolean precisionMode = Boolean.FALSE;
+    Boolean cheiePrecision = Boolean.FALSE;
+    Boolean isOpened = Boolean.FALSE;
+    Boolean cheieWobbleS = Boolean.FALSE;
+    Boolean isOpenedM = Boolean.FALSE;
+    Boolean cheieWobbleM = Boolean.FALSE;
 
-    servo_piston feeder = new servo_piston();
+    servo_piston servoPiston = new servo_piston();
+    servo_block servoBlock = new servo_block();
+    servo_wobble servoWobble = new servo_wobble();
 
     @Override
     public void runOpMode()
     {
         robot.initHardware(hardwareMap);
-        feeder.initPiston(hardwareMap);
+        servoPiston.initPiston(hardwareMap);
+        servoBlock.initBlock(hardwareMap);
+        servoWobble.initWobble(hardwareMap);
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Outake", outtakePower);
+        telemetry.addData("Intake", intakePower);
         telemetry.update();
 
         waitForStart();
@@ -47,18 +65,33 @@ public class driveTele extends LinearOpMode {
         {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Intake", "Power:" + intakePower);
+            telemetry.addData("Outtake", outtakePower);
             telemetry.update();
 
             //motor powers
+            // Reset speed variables
             LF = 0;
             RF = 0;
             LR = 0;
             RR = 0;
             intakePower = 0;
 
-            Y1 = -gamepad1.right_stick_y * Scale;
+            if(gamepad1.right_bumper && !cheiePrecision)
+            {
+                precisionMode = !precisionMode;
+                cheiePrecision = !cheiePrecision;
+            }
+            if(!gamepad1.right_bumper)
+                cheiePrecision = false;
+            if(cheiePrecision)
+                Scale = 0.5;
+            else
+                Scale = 1.0;
+
+            //left stick - movement
+            Y1 = -gamepad1.right_stick_y * Scale; // invert so up is positive
             X1 = gamepad1.right_stick_x * Scale;
-            Y2 = -gamepad1.left_stick_y * Scale;
+            Y2 = -gamepad1.left_stick_y * Scale; // Y2 is not used at present
             X2 = gamepad1.left_stick_x * Scale;
 
             // Forward/back movement
@@ -85,12 +118,12 @@ public class driveTele extends LinearOpMode {
             LR = Math.max(-motorMax, Math.min(LR, motorMax));
             RR = Math.max(-motorMax, Math.min(RR, motorMax));
 
-            if(gamepad1.x && !cheieIntake)
+            if(gamepad2.x && !cheieIntake)
             {
                 isRunning = !isRunning;
                 cheieIntake = !cheieIntake;
             }
-            if(!gamepad1.x)
+            if(!gamepad2.x)
             {
                 cheieIntake = false;
             }
@@ -98,38 +131,97 @@ public class driveTele extends LinearOpMode {
             {
                 intakePower = 1.0;
             }
+            else {
+                if(gamepad2.right_trigger!=0)
+                {
+                    intakePower = -gamepad2.right_trigger;
+                }
+                else
+                    intakePower = 0.0;
+            }
+
+            if(gamepad2.y && !cheieOutake)
+            {
+                isMax = !isMax;
+                cheieOutake = !cheieOutake;
+            }
+            if(!gamepad2.y)
+                cheieOutake = false;
+            if(isMax)
+            {
+                outtakePower = 1.0;
+            }
             else
-                intakePower = 0.0;
+            {
+                if(gamepad2.left_trigger!=0)
+                {
+                    outtakePower = gamepad2.left_trigger;
+                }
+                else
+                    outtakePower = 0.0;
+            }
 
-            outtakePower = gamepad1.left_trigger;
 
-            //giving power
-            robot.totalPower(LF,RF,LR,RR,intakePower, outtakePower);
+            outtakePower = gamepad2.left_trigger - gamepad1.left_trigger;
 
             //servoPiston controller
-            if(gamepad1.a)
+            if(gamepad2.left_bumper && boxIsUp)
             {
-                feeder.open();
+                servoPiston.open();
             }
-            else
-            {
-                feeder.close();
+            else {
+                servoPiston.close();
             }
 
-            //servoBox controller
-            if(gamepad1.b && !cheie)
+            //servoBlock controller
+            if(intakePower>0)
+                servoBlock.close();
+            else {
+                if (gamepad2.a && !cheie) {
+                    boxIsUp = !boxIsUp;
+                    cheie = !cheie;
+                }
+                if (!gamepad2.a) {
+                    cheie = false;
+                }
+                if (boxIsUp)
+                    servoBlock.open();
+                else
+                    servoBlock.close();
+            }
+
+            if(gamepad1.a && !cheieWobbleS)
             {
-                boxIsUp = !boxIsUp;
-                cheie = !cheie;
+                isOpened = !isOpened;
+                cheieWobbleS = !cheieWobbleS;
+            }
+            if(!gamepad1.a)
+                cheieWobbleS = false;
+            if(isOpened)
+                servoWobble.open();
+            else
+                servoWobble.close();
+
+            if(gamepad1.b && !cheieWobbleM)
+            {
+                isOpenedM = !isOpenedM;
+                cheieWobbleM = !cheieWobbleM;
             }
             if(!gamepad1.b)
-            {
-                cheie = false;
+                cheieWobbleM = false;
+            if(isOpenedM) {
+                wobblePower = 0.5;
+                robot.outtakeMotor.setTargetPosition(-500);
+                robot.outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-            if(boxIsUp)
-                robot.servoBox.setPosition(0.3);
             else
-                robot.servoBox.setPosition(0.0);
+            {
+                robot.outtakeMotor.setTargetPosition(-1000);
+                robot.outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                wobblePower = 0.5;
+            }
+            //giving power
+            robot.totalPower(LF,RF,LR,RR,intakePower, outtakePower, wobblePower);
         }
     }
 }
