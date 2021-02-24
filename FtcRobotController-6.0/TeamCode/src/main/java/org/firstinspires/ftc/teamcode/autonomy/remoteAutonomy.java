@@ -97,17 +97,42 @@ public class remoteAutonomy extends LinearOpMode {
             telemetry.addData("POSE", "X = %.2f  Y = %.2f  H = %.1f", currentPose.getX(),
                     currentPose.getY(), Math.toDegrees(currentPose.getHeading()));
 
-            Trajectory trajPowerShot = bot.trajectoryBuilder(new Pose2d())
-                    .strafeLeft(5)
-                    .splineToConstantHeading(new Vector2d(63,20),0)
-                    .build();
-            Trajectory trajWobble1 = bot.trajectoryBuilder(trajPowerShot.end())
-                    .splineToConstantHeading(new Vector2d(115, -22.5), 0)
-                    .build();
-            Trajectory trajReturnToBase = bot.trajectoryBuilder(trajWobble1.end())
-                    .strafeTo(new Vector2d(0, -22.5))
-                    .build();
+            if(zona == 0)
+            {
+                Trajectory trajPowerShot = bot.trajectoryBuilder(new Pose2d())
+                        .strafeLeft(5)
+                        .splineToConstantHeading(new Vector2d(63,20),0)
+                        .build();
+                Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot.end())
+                        .splineToConstantHeading(new Vector2d(115, -22.5), 0)
+                        .build();
+                Trajectory returnToBase = bot.trajectoryBuilder(putAwayWobble1.end())
+                        .strafeTo(new Vector2d(0, -22.5))
+                        .build();
+                Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
+                        .strafeTo(new Vector2d(115,-22.5))
+                        .build();
+                Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble1.end())
+                        .strafeTo(new Vector2d(65,-22.5))
+                        .build();
 
+                bot.followTrajectory(trajPowerShot);
+                //arunc discuri in powershot
+                bot.followTrajectory(putAwayWobble1);
+                //las wobble
+                bot.followTrajectory(returnToBase);
+                //iau wobble 2
+                bot.followTrajectory(putAwayWobble2);
+                //las wobble
+                bot.followTrajectory(parkRobot);
+            }
+            else
+            {
+                if(zona == 1)
+                {
+
+                }
+            }
         }
     }
 
