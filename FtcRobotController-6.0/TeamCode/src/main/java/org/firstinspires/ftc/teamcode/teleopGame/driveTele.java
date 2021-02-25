@@ -210,15 +210,15 @@ public class driveTele extends LinearOpMode {
             if(!gamepad1.b)
                 cheieWobbleM = false;
             if(isOpenedM) {
-                wobblePower = 0.5;
-                robot.wobbleMotor.setTargetPosition(-500);
+                wobblePower = 0.2;
+                robot.wobbleMotor.setTargetPosition(700);
                 robot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             else
             {
-                robot.wobbleMotor.setTargetPosition(-1000);
+                robot.wobbleMotor.setTargetPosition(0);
                 robot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                wobblePower = 0.5;
+                wobblePower = 0.2;
             }
 
             if(gamepad2.b && !cheieOutakeP)
