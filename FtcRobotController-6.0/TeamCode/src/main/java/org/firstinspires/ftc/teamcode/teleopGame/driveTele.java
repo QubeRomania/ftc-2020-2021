@@ -27,6 +27,7 @@ public class driveTele extends LinearOpMode {
     double intakePower = 0;
     double outtakePower = 0;
     double wobblePower = 0;
+    double copieOutake = 0;
 
     Boolean boxIsUp = Boolean.FALSE;
     Boolean cheie = Boolean.FALSE;
@@ -41,6 +42,8 @@ public class driveTele extends LinearOpMode {
     Boolean cheieWobbleS = Boolean.FALSE;
     Boolean isOpenedM = Boolean.FALSE;
     Boolean cheieWobbleM = Boolean.FALSE;
+    Boolean isPowerShot = Boolean.FALSE;
+    Boolean cheieOutakeP = Boolean.FALSE;
 
     servo_piston servoPiston = new servo_piston();
     servo_block servoBlock = new servo_block();
@@ -161,9 +164,6 @@ public class driveTele extends LinearOpMode {
                     outtakePower = 0.0;
             }
 
-
-            outtakePower = gamepad2.left_trigger - gamepad1.left_trigger;
-
             //servoPiston controller
             if(gamepad2.left_bumper && boxIsUp)
             {
@@ -211,15 +211,29 @@ public class driveTele extends LinearOpMode {
                 cheieWobbleM = false;
             if(isOpenedM) {
                 wobblePower = 0.5;
-                robot.outtakeMotor.setTargetPosition(-500);
-                robot.outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.wobbleMotor.setTargetPosition(-500);
+                robot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             else
             {
-                robot.outtakeMotor.setTargetPosition(-1000);
-                robot.outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.wobbleMotor.setTargetPosition(-1000);
+                robot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 wobblePower = 0.5;
             }
+
+            if(gamepad2.b && !cheieOutakeP)
+            {
+                isPowerShot = !isPowerShot;
+                cheieOutakeP = !cheieOutakeP;
+            }
+            if(!gamepad2.b)
+                cheieOutakeP = false;
+            if(cheieOutakeP)
+            {
+                outtakePower = 0.9;
+            }
+            else
+                outtakePower = gamepad2.left_trigger - gamepad1.left_trigger;
             //giving power
             robot.totalPower(LF,RF,LR,RR,intakePower, outtakePower, wobblePower);
         }
