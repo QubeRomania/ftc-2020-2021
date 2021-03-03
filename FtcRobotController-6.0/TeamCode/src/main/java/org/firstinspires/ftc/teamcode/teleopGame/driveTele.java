@@ -55,7 +55,7 @@ public class driveTele extends LinearOpMode {
         robot.initHardware(hardwareMap);
         servoPiston.initPiston(hardwareMap);
         servoBlock.initBlock(hardwareMap);
-        servoWobble.initWobble(hardwareMap);
+        servoWobble.initWobble(hardwareMap, true);
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Outake", outtakePower);
         telemetry.addData("Intake", intakePower);

@@ -13,10 +13,13 @@ public class servo_wobble {
     public static double SERVO_RELEASE = 0.12;
     public static double SERVO_CLOSE = 0.6;
 
-    public void initWobble(HardwareMap hwMap)
+    public void initWobble(HardwareMap hwMap, Boolean value)
     {
         servo = hwMap.get(Servo.class, "servoWobble");
-        close();
+        if(value == Boolean.TRUE)
+            close();
+        else
+            open();
     }
 
     public void setServoPositions(double pos)

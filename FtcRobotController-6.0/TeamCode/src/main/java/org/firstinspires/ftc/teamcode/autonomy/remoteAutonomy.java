@@ -18,6 +18,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.hardware.servo_block;
+import org.firstinspires.ftc.teamcode.hardware.servo_piston;
 
 import java.util.List;
 
@@ -38,10 +40,16 @@ public class remoteAutonomy extends LinearOpMode {
     private TFObjectDetector tfod;
     public double zona = 0;
 
+    servo_piston servoPiston = new servo_piston();
+    servo_block servoBlock = new servo_block();
+
     @Override
     public void runOpMode()
     {
         bot = new SampleMecanumDrive(hardwareMap);
+        servoPiston.initPiston(hardwareMap);
+        servoBlock.initBlock(hardwareMap);
+        servoBlock.open();
         initVuforia();
         initTfod();
 
@@ -99,32 +107,69 @@ public class remoteAutonomy extends LinearOpMode {
 
             if(zona == 0)
             {
-                Trajectory trajPowerShot = bot.trajectoryBuilder(new Pose2d())
+                Trajectory trajPowerShot1 = bot.trajectoryBuilder(new Pose2d())
                         .strafeLeft(5)
-                        .splineToConstantHeading(new Vector2d(63,20),0)
+                        .splineToConstantHeading(new Vector2d(63,26),0)
                         .build();
-                Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot.end())
-                        .splineToConstantHeading(new Vector2d(115, -22.5), 0)
+                Trajectory trajPowerShot2 = bot.trajectoryBuilder(trajPowerShot1.end())
+                        .strafeTo(new Vector2d(63,20))
+                        .build();
+                Trajectory trajPowerShot3 = bot.trajectoryBuilder(trajPowerShot2.end())
+                        .strafeTo(new Vector2d(63,14))
+                        .build();
+                Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot3.end())
+                        .splineToConstantHeading(new Vector2d(60, -22.5), 0)
                         .build();
                 Trajectory returnToBase = bot.trajectoryBuilder(putAwayWobble1.end())
                         .strafeTo(new Vector2d(0, -22.5))
                         .build();
-                Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
-                        .strafeTo(new Vector2d(115,-22.5))
+                /*Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
+                        .strafeTo(new Vector2d(115,22.5))
                         .build();
                 Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble2.end())
-                        .strafeTo(new Vector2d(65,-22.5))
+                        .strafeTo(new Vector2d(65,22.5))
                         .build();
 
-                bot.followTrajectory(trajPowerShot);
+                 */
+
                 //arunc discuri in powershot
+                bot.followTrajectory(trajPowerShot1);
+                bot.outtakeMotor.setPower(0.9);
+                sleep(500);
+                servoPiston.open();
+                sleep(800);
+                servoPiston.close();
+                sleep(800);
+                servoBlock.close();
+                sleep(500);
+                servoBlock.open();
+                sleep(500);
+                bot.followTrajectory(trajPowerShot2);
+                servoPiston.open();
+                sleep(800);
+                servoPiston.close();
+                sleep(800);
+                servoBlock.close();
+                sleep(500);
+                servoBlock.open();
+                sleep(500);
+                bot.followTrajectory(trajPowerShot3);
+                servoPiston.open();
+                sleep(800);
+                servoPiston.close();
+                bot.outtakeMotor.setPower(0);
+
                 bot.followTrajectory(putAwayWobble1);
                 //las wobble
                 bot.followTrajectory(returnToBase);
                 //iau wobble 2
+                stop();
+                /*
                 bot.followTrajectory(putAwayWobble2);
                 //las wobble
                 bot.followTrajectory(parkRobot);
+
+                 */
             }
             else
             {
@@ -132,28 +177,20 @@ public class remoteAutonomy extends LinearOpMode {
                 {
                     Trajectory trajPowerShot = bot.trajectoryBuilder(new Pose2d())
                             .strafeLeft(5)
-                            .splineToConstantHeading(new Vector2d(63,20),0)
+                            .splineToConstantHeading(new Vector2d(63,-20),0)
                             .build();
                     Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot.end())
-                            .splineToConstantHeading(new Vector2d(115, -22.5), 0)
+                            .splineToConstantHeading(new Vector2d(115, 22.5), 0)
                             .build();
                     Trajectory returnToBase = bot.trajectoryBuilder(putAwayWobble1.end())
-                            .strafeTo(new Vector2d(0, -22.5))
+                            .strafeTo(new Vector2d(0, 22.5))
                             .build();
                     Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
-                            .strafeTo(new Vector2d(115,-22.5))
+                            .strafeTo(new Vector2d(115,22.5))
                             .build();
                     Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble2.end())
-                            .strafeTo(new Vector2d(65,-22.5))
+                            .strafeTo(new Vector2d(65,22.5))
                             .build();
-
-
-                    bot.followTrajectory(trajPowerShot);
-                    //arunc discuri in powershot
-                    bot.followTrajectory(putAwayWobble1);
-                    //las wobble
-                    bot.followTrajectory(returnToBase);
-                    //iau wobble
                 }
             }
         }
