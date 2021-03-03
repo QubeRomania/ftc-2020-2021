@@ -41,20 +41,17 @@ public class wobbleAutonomyTest extends LinearOpMode {
         while(opModeIsActive())
         {
             bot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            bot.wobbleMotor.setTargetPosition(700);
-            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bot.wobbleMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            bot.wobbleMotor.setTargetPosition(-700);
             bot.wobbleMotor.setPower(0.3);
+            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(2000);
             servoWobble.close();
             sleep(1000);
             servoWobble.open();
             sleep(1000);
-            bot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            bot.wobbleMotor.setTargetPosition(700);
-            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+            bot.wobbleMotor.setTargetPosition(0);
             bot.wobbleMotor.setPower(0.3);
+            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             telemetry.addData("Wobble", "is Up again");
         }
     }
