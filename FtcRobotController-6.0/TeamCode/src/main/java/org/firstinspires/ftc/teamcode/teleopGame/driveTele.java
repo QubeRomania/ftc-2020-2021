@@ -61,6 +61,8 @@ public class driveTele extends LinearOpMode {
         telemetry.addData("Intake", intakePower);
         telemetry.update();
 
+        robot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         waitForStart();
         runtime.reset();
 
@@ -228,13 +230,15 @@ public class driveTele extends LinearOpMode {
             }
             if(!gamepad2.b)
                 cheieOutakeP = false;
-            if(cheieOutakeP)
+            if(isPowerShot)
             {
                 outtakePower = 0.9;
             }
             else
                 outtakePower = gamepad2.left_trigger - gamepad1.left_trigger;
             //giving power
+
+
             robot.totalPower(LF,RF,LR,RR,intakePower, outtakePower, wobblePower);
         }
     }

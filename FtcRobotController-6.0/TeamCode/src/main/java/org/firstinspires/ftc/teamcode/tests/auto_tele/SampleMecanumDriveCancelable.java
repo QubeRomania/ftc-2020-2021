@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.tests.auto_tele;
 
 import androidx.annotation.NonNull;
 
@@ -29,7 +29,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -57,10 +56,11 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
 /*
- * Simple mecanum drive hardware implementation for REV hardware.
+ * This is a modified SampleMecanumDrive class that implements the ability to cancel a trajectory
+ * following. Essentially, it just forces the mode to IDLE.
  */
 @Config
-public class SampleMecanumDrive extends MecanumDrive {
+public class SampleMecanumDriveCancelable extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
@@ -104,7 +104,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private Pose2d lastPoseOnTurn;
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+    public SampleMecanumDriveCancelable(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         dashboard = FtcDashboard.getInstance();
@@ -179,7 +179,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        setLocalizer(new TwoWheelTrackingLocalizerAuto(hardwareMap, this));
+        setLocalizer(new TrackingLocalizerAutoTele(hardwareMap, this));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -223,6 +223,10 @@ public class SampleMecanumDrive extends MecanumDrive {
     public void followTrajectory(Trajectory trajectory) {
         followTrajectoryAsync(trajectory);
         waitForIdle();
+    }
+
+    public void cancelFollowing() {
+        mode = Mode.IDLE;
     }
 
     public Pose2d getLastError() {

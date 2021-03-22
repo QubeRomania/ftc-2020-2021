@@ -11,7 +11,7 @@ public class servo_block {
     public Servo servo = null;
 
     public static double SERVO_RELEASE = 0.48;
-    public static double SERVO_CLOSE = 0.35;
+    public static double SERVO_CLOSE = 0.33;
 
     public void initBlock(HardwareMap hwMap)
     {

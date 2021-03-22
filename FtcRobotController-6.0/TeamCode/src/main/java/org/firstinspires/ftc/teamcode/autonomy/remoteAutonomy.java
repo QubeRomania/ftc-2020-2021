@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
@@ -20,8 +21,10 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.hardware.servo_block;
 import org.firstinspires.ftc.teamcode.hardware.servo_piston;
+import org.firstinspires.ftc.teamcode.hardware.servo_wobble;
 
 import java.util.List;
+import java.util.Vector;
 
 @Autonomous
 public class remoteAutonomy extends LinearOpMode {
@@ -42,6 +45,7 @@ public class remoteAutonomy extends LinearOpMode {
 
     servo_piston servoPiston = new servo_piston();
     servo_block servoBlock = new servo_block();
+    servo_wobble servoWobble = new servo_wobble();
 
     @Override
     public void runOpMode()
@@ -50,6 +54,7 @@ public class remoteAutonomy extends LinearOpMode {
         servoPiston.initPiston(hardwareMap);
         servoBlock.initBlock(hardwareMap);
         servoBlock.open();
+        servoWobble.initWobble(hardwareMap,false);
         initVuforia();
         initTfod();
 
@@ -61,13 +66,13 @@ public class remoteAutonomy extends LinearOpMode {
         while(!isStarted())
         {
             if (tfod != null) {
+                tfod.setClippingMargins(5,5,5,5);
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
                     telemetry.addData("# Object Detected", updatedRecognitions.size());
                     if (updatedRecognitions.size() == 0) {
                         // empty list.  no objects recognized.
-                        telemetry.addData("TFOD", "No items detected.");
-                        telemetry.addData("Target Zone", "A");
+                        telemetry.addData("rings", "0");
                     } else {
                         // list is not empty.
                         // step through the list of recognitions and display boundary info.
@@ -82,8 +87,10 @@ public class remoteAutonomy extends LinearOpMode {
                             // check label to see which target zone to go after.
                             if (recognition.getLabel().equals("Single")) {
                                 zona = 1.0;
+                                telemetry.addData("rings", "1");
                             } else if (recognition.getLabel().equals("Quad")) {
                                 zona = 4.0;
+                                telemetry.addData("rings", "4");
                             } else {
                                 zona = 0.0;
                             }
@@ -97,71 +104,112 @@ public class remoteAutonomy extends LinearOpMode {
 
         tfod.shutdown();
 
+        bot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         while(opModeIsActive())
         {
+            telemetry.addData("Zona",zona);
             bot.updatePoseEstimate();
             Pose2d currentPose = bot.getPoseEstimate();
 
             telemetry.addData("POSE", "X = %.2f  Y = %.2f  H = %.1f", currentPose.getX(),
                     currentPose.getY(), Math.toDegrees(currentPose.getHeading()));
 
+
             if(zona == 0)
             {
                 Trajectory trajPowerShot1 = bot.trajectoryBuilder(new Pose2d())
-                        .strafeLeft(5)
-                        .splineToConstantHeading(new Vector2d(63,26),0)
+                        .forward(13)
+                        .splineTo(new Vector2d(63,-8),0)
                         .build();
-                Trajectory trajPowerShot2 = bot.trajectoryBuilder(trajPowerShot1.end())
-                        .strafeTo(new Vector2d(63,20))
+                Trajectory putWobble1 = bot.trajectoryBuilder(trajPowerShot1.end())
+                        .strafeTo(new Vector2d(63,-22.5))
                         .build();
-                Trajectory trajPowerShot3 = bot.trajectoryBuilder(trajPowerShot2.end())
-                        .strafeTo(new Vector2d(63,14))
-                        .build();
-                Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot3.end())
-                        .splineToConstantHeading(new Vector2d(60, -22.5), 0)
-                        .build();
-                Trajectory returnToBase = bot.trajectoryBuilder(putAwayWobble1.end())
-                        .strafeTo(new Vector2d(0, -22.5))
-                        .build();
-                /*Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
-                        .strafeTo(new Vector2d(115,22.5))
-                        .build();
-                Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble2.end())
-                        .strafeTo(new Vector2d(65,22.5))
+                /*Trajectory trajPowerShot3 = bot.trajectoryBuilder(trajPowerShot2.end())
+                        .strafeTo(new Vector2d(63,4))
                         .build();
 
                  */
+                Trajectory littleBack = bot.trajectoryBuilder(putWobble1.end())
+                        .strafeTo(new Vector2d(55,-22.5))
+                        .build();
+                Trajectory returnToBase = bot.trajectoryBuilder(littleBack.end().plus(new Pose2d(0,0,-Math.toRadians(180))))
+                        .splineTo(new Vector2d(45,-12),Math.toRadians(180))
+                        .build();
+                Trajectory takeWobble = bot.trajectoryBuilder(returnToBase.end())
+                        .strafeTo(new Vector2d(30,-10))
+                        .build();
+                Trajectory putAwayWobble2 = bot.trajectoryBuilder(takeWobble.end().plus(new Pose2d(0,0,-Math.toRadians(180))))
+                        .strafeTo(new Vector2d(57,-26))
+                        .addTemporalMarker(0,()->{
+                            bot.wobbleMotor.setTargetPosition(-900);
+                            bot.wobbleMotor.setPower(-0.05);
+                            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        })
+                        .build();
+                Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble2.end())
+                        .back(3)
+                        .splineToConstantHeading(new Vector2d(64,-5),0)
+                        .build();
 
                 //arunc discuri in powershot
                 bot.followTrajectory(trajPowerShot1);
-                bot.outtakeMotor.setPower(0.9);
-                sleep(500);
+                bot.outtakeMotor.setPower(1);
+                sleep(700);
                 servoPiston.open();
-                sleep(800);
+                sleep(600);
                 servoPiston.close();
-                sleep(800);
+                sleep(600);
                 servoBlock.close();
-                sleep(500);
+                sleep(100);
                 servoBlock.open();
                 sleep(500);
-                bot.followTrajectory(trajPowerShot2);
                 servoPiston.open();
-                sleep(800);
+                sleep(600);
                 servoPiston.close();
-                sleep(800);
+                sleep(600);
                 servoBlock.close();
-                sleep(500);
+                sleep(100);
                 servoBlock.open();
                 sleep(500);
-                bot.followTrajectory(trajPowerShot3);
                 servoPiston.open();
-                sleep(800);
+                sleep(600);
                 servoPiston.close();
                 bot.outtakeMotor.setPower(0);
 
-                bot.followTrajectory(putAwayWobble1);
+                bot.followTrajectory(putWobble1);
+
                 //las wobble
+                bot.wobbleMotor.setTargetPosition(-900);
+                bot.wobbleMotor.setPower(-0.3);
+                bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sleep(1200);
+                servoWobble.close();
+                sleep(500);
+
+                bot.followTrajectory(littleBack);
+
+                bot.turn(Math.toRadians(180));
+
                 bot.followTrajectory(returnToBase);
+
+                bot.followTrajectory(takeWobble);
+
+                servoWobble.open();
+                sleep(500);
+                bot.wobbleMotor.setTargetPosition(-300);
+                bot.wobbleMotor.setPower(0.3);
+                bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                bot.turn(-Math.toRadians(180));
+
+                bot.followTrajectory(putAwayWobble2);
+
+                servoWobble.close();
+                sleep(500);
+
+                bot.followTrajectory(parkRobot);
+
                 //iau wobble 2
                 stop();
                 /*
@@ -175,22 +223,194 @@ public class remoteAutonomy extends LinearOpMode {
             {
                 if(zona == 1)
                 {
-                    Trajectory trajPowerShot = bot.trajectoryBuilder(new Pose2d())
-                            .strafeLeft(5)
-                            .splineToConstantHeading(new Vector2d(63,-20),0)
+                    Trajectory goToRingF = bot.trajectoryBuilder(new Pose2d())
+                            .strafeTo(new Vector2d(25,0))
+                            .build();
+                    Trajectory goToRingS = bot.trajectoryBuilder(goToRingF.end())
+                            .strafeTo(new Vector2d(25,-2))
+                            .addTemporalMarker(0, ()-> {
+                                bot.outtakeMotor.setPower(1);
+                            })
+                            .build();
+                    Trajectory takeRing = bot.trajectoryBuilder(goToRingS.end())
+                            .strafeTo(new Vector2d(30,-2))
+                            .addTemporalMarker(0,()-> {
+                                bot.intakeMotor.setPower(1);
+                            })
+                            .build();
+                    Trajectory trajPowerShot = bot.trajectoryBuilder(takeRing.end())
+                            .splineTo(new Vector2d(63,-8),0)
+                            .addTemporalMarker(0,()-> {
+                                bot.outtakeMotor.setPower(1);
+                            })
                             .build();
                     Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajPowerShot.end())
-                            .splineToConstantHeading(new Vector2d(115, 22.5), 0)
+                            .splineTo(new Vector2d(80, 0), 0)
+                            .addTemporalMarker(0, ()-> {
+                                bot.outtakeMotor.setPower(0);
+                                bot.intakeMotor.setPower(0);
+                                bot.wobbleMotor.setTargetPosition(-900);
+                                bot.wobbleMotor.setPower(-0.2);
+                                bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            })
                             .build();
-                    Trajectory returnToBase = bot.trajectoryBuilder(putAwayWobble1.end())
-                            .strafeTo(new Vector2d(0, 22.5))
+                    Trajectory littleBack = bot.trajectoryBuilder(putAwayWobble1.end())
+                            .strafeTo(new Vector2d(70,0))
                             .build();
-                    Trajectory putAwayWobble2 = bot.trajectoryBuilder(returnToBase.end())
-                            .strafeTo(new Vector2d(115,22.5))
+                    Trajectory returnToBase = bot.trajectoryBuilder(littleBack.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .splineTo(new Vector2d(45, -11),Math.toRadians(180))
+                            .build();
+                    Trajectory littleFront = bot.trajectoryBuilder(returnToBase.end())
+                            .strafeTo(new Vector2d(30,-11))
+                            .build();
+                    Trajectory putAwayWobble2 = bot.trajectoryBuilder(littleFront.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .splineTo(new Vector2d(72,-11),0)
+                            .addTemporalMarker(2.5,() -> {
+                                servoWobble.close();
+                            })
                             .build();
                     Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble2.end())
-                            .strafeTo(new Vector2d(65,22.5))
+                            .strafeTo(new Vector2d(70,-11))
                             .build();
+
+                    bot.followTrajectory(goToRingF);
+                    bot.followTrajectory(goToRingS);
+                    bot.turn(Math.toRadians(2.5));
+                    sleep(100);
+                    servoPiston.open();
+                    sleep(600);
+                    servoPiston.close();
+                    sleep(600);
+                    bot.outtakeMotor.setPower(0);
+                    servoBlock.close();
+                    sleep(100);
+                    bot.turn(-Math.toRadians(2.5));
+                    bot.followTrajectory(takeRing);
+                    bot.followTrajectory(trajPowerShot);
+
+                    servoBlock.open();
+                    sleep(100);
+
+                    bot.turn(-Math.toRadians(1));
+
+                    sleep(200);
+                    servoPiston.open();
+                    sleep(500);
+                    servoPiston.close();
+                    sleep(500);
+                    servoPiston.open();
+                    sleep(500);
+                    servoPiston.close();
+                    sleep(500);
+                    servoPiston.open();
+                    sleep(500);
+                    servoPiston.close();
+
+                    bot.turn(Math.toRadians(1));
+
+                    bot.followTrajectory(putAwayWobble1);
+
+                    servoWobble.close();
+                    sleep(100);
+
+                    bot.followTrajectory(littleBack);
+                    bot.turn(Math.toRadians(180));
+                    bot.followTrajectory(returnToBase);
+
+                    bot.followTrajectory(littleFront);
+
+                    servoWobble.open();
+                    sleep(500);
+                    bot.wobbleMotor.setTargetPosition(-300);
+                    bot.wobbleMotor.setPower(0.3);
+                    bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    bot.turn(-Math.toRadians(180));
+
+                    bot.wobbleMotor.setTargetPosition(-900);
+                    bot.wobbleMotor.setPower(-0.05);
+                    bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    bot.followTrajectory(putAwayWobble2);
+                    bot.followTrajectory(parkRobot);
+
+                    stop();
+                }
+                else
+                {
+                    Trajectory trajS = bot.trajectoryBuilder(new Pose2d())
+                            .strafeTo(new Vector2d(0,10))
+                            .build();
+                    Trajectory trajShoot = bot.trajectoryBuilder(trajS.end())
+                            .forward(15)
+                            .splineToConstantHeading(new Vector2d(63,-4),0)
+                            .build();
+                    /*Trajectory takeRings = bot.trajectoryBuilder(trajShoot.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .strafeTo(new Vector2d(40,-4))
+                            .build();
+                    Trajectory littleBack = bot.trajectoryBuilder(takeRings.end())
+                            .strafeTo(new Vector2d(35,-4))
+                            .build();
+                    Trajectory trajShoot1 = bot.trajectoryBuilder(littleBack.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .splineTo(new Vector2d(63,-4),0)
+                            .build();
+                    Trajectory takeRest = bot.trajectoryBuilder(trajShoot1.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .strafeTo(new Vector2d(20,0))
+                            .build();
+                    Trajectory trajShoot2 = bot.trajectoryBuilder(takeRest.end().plus(new Pose2d(0,0,Math.toRadians(180))))
+                            .strafeTo(new Vector2d(63,-4))
+                            .build();
+
+                     */
+                    Trajectory putAwayWobble1 = bot.trajectoryBuilder(trajShoot.end())
+                            .splineTo(new Vector2d(100, -22.5), 0)
+                            .build();
+                    Trajectory parkRobot = bot.trajectoryBuilder(putAwayWobble1.end())
+                            .strafeTo(new Vector2d(70,-22.5))
+                            .build();
+
+                    bot.followTrajectory(trajS);
+
+                    bot.followTrajectory(trajShoot);
+
+                    servoBlock.open();
+                    sleep(200);
+
+                    bot.outtakeMotor.setPower(1);
+                    sleep(700);
+                    servoPiston.open();
+                    sleep(600);
+                    servoPiston.close();
+                    sleep(600);
+                    servoBlock.close();
+                    sleep(100);
+                    servoBlock.open();
+                    sleep(300);
+                    servoPiston.open();
+                    sleep(600);
+                    servoPiston.close();
+                    sleep(600);
+                    servoBlock.close();
+                    sleep(100);
+                    servoBlock.open();
+                    sleep(300);
+                    servoPiston.open();
+                    sleep(600);
+                    servoPiston.close();
+                    bot.outtakeMotor.setPower(0);
+
+                    bot.followTrajectory(putAwayWobble1);
+
+                    bot.wobbleMotor.setTargetPosition(-900);
+                    bot.wobbleMotor.setPower(-0.3);
+                    bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    sleep(1000);
+                    servoWobble.close();
+                    sleep(500);
+
+                    bot.followTrajectory(parkRobot);
+
+                    stop();
                 }
             }
         }

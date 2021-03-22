@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_piston {
     public Servo servo = null;
 
-    public static double SERVO_RELEASE = 0.55;
+    public static double SERVO_RELEASE = 0.18;
     public static double SERVO_CLOSE = 0.0;
 
     public void initPiston(HardwareMap hwMap)
