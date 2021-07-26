@@ -1,14 +1,16 @@
-package org.firstinspires.ftc.teamcode.teleopGame.augmentedDrive;
+package org.firstinspires.ftc.teamcode.teleopGame;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_block;
@@ -42,7 +44,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_wobble;
  * This sample utilizes the SampleMecanumDriveCancelable.java class.
  */
 @TeleOp
-public class DriveNou extends LinearOpMode {
+public class DriveRed extends LinearOpMode {
     // Define 2 states, drive control or automatic control
     enum Mode {
         DRIVER_CONTROL,
@@ -51,57 +53,61 @@ public class DriveNou extends LinearOpMode {
 
     Mode currentMode = Mode.DRIVER_CONTROL;
 
-    // The coordinates we want the bot to automatically go to when we press the A button
-    Vector2d targetAVector;
-    // The heading we want the bot to end on for targetA
-    double targetAHeading;
-
-    // The location we want the bot to automatically go to when we press the B button
-    Vector2d targetBVector = new Vector2d(-15, 25);
-
     // The angle we want to align to when we press Y
     double targetAngle = Math.toRadians(0);
 
-
     SampleMecanumDrive drive;
-
-    double Scale = 1.0;
-    double motorMax = 1.0;
 
     double intakePower = 0;
     double outtakePower = 0;
     double wobblePower = 0;
-    double pistonPower = 0;
-    double copieOutake = 0;
+    double pistonPower = 0.4;
     double posCutie = 0.47;
     double posPerete = 0.02;
-    double posPerete1 = 0.69;
 
-    public double HIGH_VELO = 1620;
+    double basePowerOuttake = 1625;
+    double powerShotPower = 1440;
+    double powerUnit = 25;
 
+    int pistonRelease = -165;
+    int pistonClose = 0;
+
+    int wobbleRelease = 950;
+    int wobbleClose = 0;
+
+    //variabile cutie
     Boolean boxIsUp = Boolean.FALSE;
-    Boolean cheie = Boolean.FALSE;
-    Boolean cheiePiston = Boolean.FALSE;
-    Boolean isPistonOk = Boolean.FALSE;
-    Boolean isRunning = Boolean.FALSE;
-    Boolean cheieIntake = Boolean.FALSE;
-    Boolean cheieOutake = Boolean.FALSE;
-    Boolean isMax = Boolean.FALSE;
-    Boolean precisionMode = Boolean.FALSE;
-    Boolean cheiePrecision = Boolean.FALSE;
-    Boolean isOpened = Boolean.FALSE;
-    Boolean cheieWobbleS = Boolean.FALSE;
-    Boolean isOpenedM = Boolean.FALSE;
-    Boolean cheieWobbleM = Boolean.FALSE;
-    Boolean isPowerShot = Boolean.FALSE;
-    Boolean cheieOutakeP = Boolean.FALSE;
     Boolean servoBlockUp = Boolean.FALSE;
     Boolean servoBlockDown = Boolean.FALSE;
-    Boolean ok = Boolean.FALSE;
+
+    //variabile intake
+    Boolean cheie = Boolean.FALSE;
+    Boolean cheieIntake = Boolean.FALSE;
+
+    //variabile piston
+    Boolean cheiePiston = Boolean.FALSE;
+
+    //variabile piston
+
+    //variabile outtake
+    Boolean cheieOuttakeUp = Boolean.FALSE;
+    Boolean cheieOuttakeDown = Boolean.FALSE;
+
+    //variabile perete
     Boolean pereteUp = Boolean.FALSE;
     Boolean pereteDown = Boolean.FALSE;
     Boolean cheiePerete = Boolean.FALSE;
     Boolean isOkPerete = Boolean.FALSE;
+
+    Boolean isRunning = Boolean.FALSE;
+
+    Boolean cheieOutake = Boolean.FALSE;
+    Boolean isOpened = Boolean.FALSE;
+    Boolean cheieWobbleS = Boolean.FALSE;
+    Boolean isOpenedM = Boolean.FALSE;
+    Boolean cheieWobbleM = Boolean.FALSE;
+    Boolean ok = Boolean.FALSE;
+    Boolean okOuttake = Boolean.FALSE;
 
     servo_block servoBlock = new servo_block();
     servo_wobble servoWobble = new servo_wobble();
@@ -109,9 +115,8 @@ public class DriveNou extends LinearOpMode {
 
     Vector2d towerVector = new Vector2d(125,26);
 
-    double powerShotPower = 1220;
-
-    BNO055IMU imu;
+    //outtake pid coefficients
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(52, 0, 4.6, 14);
 
     @Override
     public void runOpMode() {
@@ -131,6 +136,7 @@ public class DriveNou extends LinearOpMode {
 
         drive.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.pistonMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.outtakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
@@ -156,7 +162,7 @@ public class DriveNou extends LinearOpMode {
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.addData("Cutie",posCutie);
-            telemetry.addData("Velocity", drive.outtakeMotor.getVelocity());
+            telemetry.addData("Velocity", outtakePower);
             telemetry.update();
 
             // We follow different logic based on whether we are in manual driver control or switch
@@ -180,32 +186,28 @@ public class DriveNou extends LinearOpMode {
                     }
                     else if(gamepad2.right_bumper)
                     {
-                        shoot(3,false);
+                        shoot(3);
 
-                        currentMode = Mode.AUTOMATIC_CONTROL;
+                        currentMode = Mode.DRIVER_CONTROL;
                     }
                     else if(gamepad1.right_bumper)
                     {
                         resetPositionLine();
-                        Trajectory powershot1 = drive.trajectoryBuilder(new Pose2d())
-                                .strafeTo(new Vector2d(63,-27))
-                                .build();
-                        Trajectory powershot2 = drive.trajectoryBuilder(powershot1.end())
-                                .strafeTo(new Vector2d(63,-32))
-                                .build();
-                        Trajectory powershot3 = drive.trajectoryBuilder(powershot2.end())
-                                .strafeTo(new Vector2d(63,-37))
+                        servoBlock.open();
+                        Trajectory powershot1 = drive.trajectoryBuilder(new Pose2d(63,0,0))
+                                .lineToLinearHeading(new Pose2d(63.5,-26, Math.toRadians(-1)))
                                 .build();
 
                         drive.outtakeMotor.setVelocity(powerShotPower);
 
-
                         drive.followTrajectory(powershot1);
-                        shoot(1,false);
-                        drive.followTrajectory(powershot2);
-                        shoot(1, false);
-                        drive.followTrajectory(powershot3);
-                        shoot(1, false);
+                        shoot(1);
+                        sleep(400);
+                        drive.turn(Math.toRadians(-6));
+                        shoot(1);
+                        sleep(400);
+                        drive.turn(Math.toRadians(-5));
+                        shoot(1);
 
                         currentMode = Mode.AUTOMATIC_CONTROL;
                     }
@@ -223,18 +225,20 @@ public class DriveNou extends LinearOpMode {
                     }
                     break;
             }
+
             intakeController();
             outtakeController();
             pistonController();
             servoBlockController();
             servoWobbleController();
             wobbleMotorController();
-            //isPowerShotController();
             pereteController();
 
-            //giving power
+            //Power To Intake
             drive.intakeMotor.setPower(intakePower);
+            //Power To Outtake
             drive.outtakeMotor.setVelocity(outtakePower);
+            //Power to Wobble
             drive.wobbleMotor.setPower(wobblePower);
         }
     }
@@ -243,14 +247,11 @@ public class DriveNou extends LinearOpMode {
     {
         if(gamepad2.left_bumper && !cheiePiston)
         {
-            pistonPower = 0.4;
-            drive.pistonMotor.setPower(pistonPower);
-            drive.pistonMotor.setTargetPosition(-180);
-            drive.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(300);
-            drive.pistonMotor.setTargetPosition(0);
-            drive.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            cheiePiston = true;
+            if(boxIsUp) {
+                movePiston(pistonRelease,pistonPower,300);
+                movePiston(pistonClose,pistonPower,0);
+                cheiePiston = true;
+            }
         }
         if(!gamepad2.left_bumper)
             cheiePiston = false;
@@ -259,16 +260,18 @@ public class DriveNou extends LinearOpMode {
     void servoBlockController()
     {
         if(intakePower>0) {
+            //if intake is running, close the cage
             servoBlock.close();
             boxIsUp = false;
         }
         else {
-            if (gamepad2.y && !cheie) {
+            //toggle for cage (up/down)
+            if (gamepad2.a && !cheie) {
                 boxIsUp = !boxIsUp;
                 cheie = !cheie;
                 ok = true;
             }
-            if (!gamepad2.y) {
+            if (!gamepad2.a) {
                 cheie = false;
             }
             if(ok) {
@@ -279,35 +282,36 @@ public class DriveNou extends LinearOpMode {
             }
         }
 
-        if (gamepad2.dpad_up)
-            if(!servoBlockUp)
-            {
+        //move one position up or down
+        if (gamepad2.dpad_right) {
+            if (!servoBlockUp) {
                 posCutie += 0.01;
-                if(posCutie>0 && posCutie<1)
+                if (posCutie > 0 && posCutie < 1)
                     servoBlock.setServoPositions(posCutie);
                 servoBlockUp = true;
                 ok = false;
             }
-            else {}
+        }
         else
             servoBlockUp = false;
 
-        if (gamepad2.dpad_down)
-            if(!servoBlockDown)
-            {
+        if (gamepad2.dpad_left) {
+            if (!servoBlockDown) {
                 posCutie -= 0.01;
-                if(posCutie>0 && posCutie<1)
+                if (posCutie > 0 && posCutie < 1)
                     servoBlock.setServoPositions(posCutie);
                 servoBlockDown = true;
                 ok = false;
             }
-            else {}
+        }
         else
             servoBlockDown = false;
+
     }
 
     void servoWobbleController()
     {
+
         if(gamepad1.a && !cheieWobbleS)
         {
             isOpened = !isOpened;
@@ -331,26 +335,25 @@ public class DriveNou extends LinearOpMode {
         if(!gamepad1.b)
             cheieWobbleM = false;
         if(isOpenedM) {
-            wobblePower = 0.2;
-            drive.wobbleMotor.setTargetPosition(900);
-            drive.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //open wobble
+            moveWobble(wobbleRelease,0.2,0);
         }
         else
         {
-            drive.wobbleMotor.setTargetPosition(200);
-            drive.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            wobblePower = 0.2;
+            //close wobble
+            moveWobble(wobbleClose,0.2,0);
         }
     }
 
     void intakeController()
     {
+        //button x makes the intake turn reverse, else turn with trigger
         if(gamepad2.x && !cheieIntake)
         {
             isRunning = !isRunning;
             cheieIntake = !cheieIntake;
         }
-        if(!(gamepad2.left_bumper))
+        if(!(gamepad2.x))
         {
             cheieIntake = false;
         }
@@ -359,34 +362,52 @@ public class DriveNou extends LinearOpMode {
             intakePower = -1;
         }
         else {
-            intakePower = gamepad2.left_trigger;
+            intakePower = gamepad2.right_trigger;
         }
     }
 
     void outtakeController()
     {
-        if(gamepad2.b && !cheieOutakeP)
-        {
-            isPowerShot = !isPowerShot;
-            cheieOutakeP = !cheieOutakeP;
+        //toggle b to turn outtake motor on/off
+        if (gamepad2.b && !cheieOutake) {
+            cheieOutake = !cheieOutake;
+            okOuttake = !okOuttake;
         }
-        if(!gamepad2.b)
-            cheieOutakeP = false;
-        if(isPowerShot)
-        {
-            outtakePower = 1400;
+        if (!gamepad2.b) {
+            cheieOutake = false;
+        }
+        if (okOuttake)
+            outtakePower = basePowerOuttake;
+        else
+            outtakePower = 0;
+
+        //dpad gives more or less power to outtake motor
+        if(gamepad2.dpad_up) {
+            if (!cheieOuttakeUp) {
+                basePowerOuttake += powerUnit;
+                cheieOuttakeUp = true;
+            }
         }
         else
-            outtakePower = Math.min(gamepad2.right_trigger*2000, HIGH_VELO);
+            cheieOuttakeUp = false;
+        if(gamepad2.dpad_down) {
+            if (!cheieOuttakeDown) {
+                basePowerOuttake -= powerUnit;
+                cheieOuttakeDown = true;
+            }
+        }
+        else
+            cheieOuttakeDown = false;
     }
 
     void pereteController()
     {
-        if (gamepad2.b && !cheiePerete) {
+        //toggle on/off perete
+        if (gamepad2.y && !cheiePerete) {
             isOkPerete = !isOkPerete;
             cheiePerete = !cheiePerete;
         }
-        if (!gamepad2.b) {
+        if (!gamepad2.y) {
             cheiePerete = false;
         }
         if (isOkPerete)
@@ -394,7 +415,8 @@ public class DriveNou extends LinearOpMode {
         else
             servoPerete.setServoPositions(0.02);
 
-        if (gamepad2.dpad_right)
+        //move up/down one position
+        if (gamepad1.dpad_right)
             if(!pereteUp)
             {
                 posPerete+= 0.01;
@@ -406,7 +428,7 @@ public class DriveNou extends LinearOpMode {
         else
             pereteUp = false;
 
-        if (gamepad2.dpad_left)
+        if (gamepad1.dpad_left)
             if(!pereteDown)
             {
                 posPerete -= 0.01;
@@ -419,35 +441,35 @@ public class DriveNou extends LinearOpMode {
             pereteDown = false;
     }
 
-    private void shoot(int rings,boolean boxDown)
+    private void shoot(int rings)
     {
         for(int i=1;i<=rings;++i)
         {
-            drive.pistonMotor.setPower(0.3);
-            drive.pistonMotor.setTargetPosition(-165);
-            drive.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(380);
-            drive.pistonMotor.setTargetPosition(0);
-            drive.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(600);
-
-            if(boxDown)
-            {
-                servoBlock.close();
-                sleep(100);
-                servoBlock.open();
-                sleep(200);
-            }
+            movePiston(pistonRelease,0.3,380);
+            movePiston(pistonClose,0.3,0);
+            if(i!=rings)
+                sleep(400);
         }
-    }
-
-    void resetPositionCorner()
-    {
-        drive.setPoseEstimate(new Pose2d(0,0,0));
     }
 
     void resetPositionLine()
     {
-        drive.setPoseEstimate(new Pose2d(62,0,0));
+        drive.setPoseEstimate(new Pose2d(63,0,0));
+    }
+
+    void movePiston(int position, double power, int timeToSleep)
+    {
+        drive.pistonMotor.setPower(power);
+        drive.pistonMotor.setTargetPosition(position);
+        drive.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(timeToSleep);
+    }
+
+    void moveWobble(int position, double power, int timeToSleep)
+    {
+        drive.wobbleMotor.setPower(power);
+        drive.wobbleMotor.setTargetPosition(position);
+        drive.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(timeToSleep);
     }
 }

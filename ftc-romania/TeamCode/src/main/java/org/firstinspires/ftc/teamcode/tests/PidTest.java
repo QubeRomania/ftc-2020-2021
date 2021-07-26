@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_block;
 @Config
 @TeleOp
 //@Disabled
-public class pid_test extends LinearOpMode {
+public class PidTest extends LinearOpMode {
 
     // our DC motor.
 

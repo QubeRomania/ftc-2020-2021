@@ -4,12 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
-import org.firstinspires.ftc.teamcode.hardware.servo_block;
-import org.firstinspires.ftc.teamcode.hardware.servo_perete;
-import org.firstinspires.ftc.teamcode.hardware.servo_wobble;
 
 @TeleOp
 public class OuttakeEncoderTest extends LinearOpMode {
