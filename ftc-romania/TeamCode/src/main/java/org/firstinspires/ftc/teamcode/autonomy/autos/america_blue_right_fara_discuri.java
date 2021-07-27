@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomy;
+package org.firstinspires.ftc.teamcode.autonomy.autos;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -25,7 +25,7 @@ import java.util.List;
  * This is an example of a more complex path to really test the tuning.
  */
 @Autonomous
-public class america_blue_left extends LinearOpMode {
+public class america_blue_right_fara_discuri extends LinearOpMode {
 
     public SampleMecanumDrive bot;
     public double powershotPower = 1450;
@@ -54,7 +54,7 @@ public class america_blue_left extends LinearOpMode {
 
         servoBlock.initBlock(hardwareMap);
         servoBlock.open();
-        servoWobble.initWobble(hardwareMap, true);
+        servoWobble.initWobble(hardwareMap, false);
         servoPerete.initPerete(hardwareMap);
 
         initVuforia();
@@ -63,7 +63,6 @@ public class america_blue_left extends LinearOpMode {
         if(tfod != null)
         {
             tfod.activate();
-            tfod.setZoom(4.0, 16.0/9.0);
         }
 
         while(!isStarted())
@@ -109,7 +108,7 @@ public class america_blue_left extends LinearOpMode {
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
-                .splineTo(new Vector2d(63,0),Math.toRadians(-20))
+                .splineTo(new Vector2d(63.5,-5),Math.toRadians(13))
                 .build();
 
         Trajectory putAwayWobble10 = bot.trajectoryBuilder(trajShoot.end())
@@ -118,17 +117,12 @@ public class america_blue_left extends LinearOpMode {
                     bot.wobbleMotor.setTargetPosition(900);
                     bot.wobbleMotor.setPower(0.2);
                     bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    servoPerete.close();
                 })
-                .lineToLinearHeading(new Pose2d(65,0,Math.toRadians(-150)))
+                .lineToLinearHeading(new Pose2d(75,25,Math.toRadians(-100)))
                 .build();
 
-        Trajectory goBack0 = bot.trajectoryBuilder(putAwayWobble10.end())
-                .lineToLinearHeading(new Pose2d(50,0, Math.toRadians(180)))
-                .build();
-
-        Trajectory park = bot.trajectoryBuilder(goBack0.end())
-                .lineToLinearHeading(new Pose2d(70,-15,0))
+        Trajectory park = bot.trajectoryBuilder(putAwayWobble10.end())
+                .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
                 .build();
 
         Trajectory goToRing = bot.trajectoryBuilder(new Pose2d())
@@ -139,34 +133,35 @@ public class america_blue_left extends LinearOpMode {
                 .build();
 
         Trajectory goShoot = bot.trajectoryBuilder(goToRing.end())
-                .splineTo(new Vector2d(63,-5),Math.toRadians(-15))
+                .splineTo(new Vector2d(63.5,-5),Math.toRadians(-15))
                 .build();
 
-        Trajectory putAwayWobble11 = bot.trajectoryBuilder(trajShoot.end())
+        Trajectory putAwayWobble11 = bot.trajectoryBuilder(trajShoot.end ())
+                .lineToLinearHeading(new Pose2d(83,11,Math.toRadians(200)))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(0);
                     bot.wobbleMotor.setTargetPosition(900);
                     bot.wobbleMotor.setPower(0.2);
                     bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                .lineToLinearHeading(new Pose2d(75,10,Math.toRadians(-180)))
                 .build();
 
-        Trajectory takeRing1 = bot.trajectoryBuilder(putAwayWobble11.end())
+        /*Trajectory takeRing1 = bot.trajectoryBuilder(putAwayWobble11.end())
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
                 })
-                .lineTo(new Vector2d(30,17))
+                .lineToLinearHeading(new Pose2d(30,17, Math.toRadians(-180)))
                 .build();
 
         Trajectory shoot1 = bot.trajectoryBuilder(takeRing1.end())
-                .lineToLinearHeading(new Pose2d(63, 17,Math.toRadians(-3)))
+                .lineToLinearHeading(new Pose2d(63,17,Math.toRadians(0)))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
                 .build();
+         */
 
-        Trajectory park1 = bot.trajectoryBuilder(shoot1.end())
+        Trajectory park1 = bot.trajectoryBuilder(putAwayWobble11.end())
                 .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
                 .build();
 
@@ -177,29 +172,31 @@ public class america_blue_left extends LinearOpMode {
                     bot.wobbleMotor.setPower(0.2);
                     bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                .lineToLinearHeading(new Pose2d(125,-24,Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(120,24,Math.toRadians(-90)))
                 .build();
 
-        Trajectory goToRings = bot.trajectoryBuilder(putAwayWobble14.end())
+        /*Trajectory goToRings = bot.trajectoryBuilder(putAwayWobble14.end())
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
                 })
-                .lineToLinearHeading(new Pose2d(50,-20, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(30,18, Math.toRadians(-180)))
                 .build();
 
         Trajectory takeRings = bot.trajectoryBuilder(goToRings.end())
-                .lineTo(new Vector2d(28,-18))
+                .lineTo(new Vector2d(28,18))
                 .build();
 
         Trajectory shootRings4 = bot.trajectoryBuilder(takeRings.end())
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
-                .lineToLinearHeading(new Pose2d(63.5,-17,Math.toRadians(-3)))
+                .lineToLinearHeading(new Pose2d(63,17,Math.toRadians(0)))
                 .build();
 
-        Trajectory park4 = bot.trajectoryBuilder(shootRings4.end())
-                .lineTo(new Vector2d(70,0))
+         */
+
+        Trajectory park4 = bot.trajectoryBuilder(putAwayWobble14.end())
+                .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
                 .build();
 
         waitForStart();
@@ -225,8 +222,6 @@ public class america_blue_left extends LinearOpMode {
             bot.wobbleMotor.setPower(0.2);
             bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(300);
-            bot.followTrajectory(goBack0);
-            sleep(7000);
             bot.followTrajectory(park);
         }
         else if(zona == 1.0) {
@@ -235,18 +230,11 @@ public class america_blue_left extends LinearOpMode {
             servoPerete.open();
             sleep(200);
             shoot(3,false);
-            sleep(3000);
+            sleep(1500);
             bot.followTrajectory(putAwayWobble11);
             sleep(200);
             servoWobble.open();
             sleep(500);
-            servoBlock.close();
-            sleep(200);
-            bot.followTrajectory(takeRing1);
-            bot.followTrajectory(shoot1);
-            servoBlock.open();
-            sleep(600);
-            shoot(1,false);
             bot.wobbleMotor.setTargetPosition(0);
             bot.wobbleMotor.setPower(0.2);
             bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -265,12 +253,10 @@ public class america_blue_left extends LinearOpMode {
             servoWobble.open();
             sleep(500);
             servoBlock.close();
-            bot.followTrajectory(goToRings);
-            bot.followTrajectory(takeRings);
-            bot.followTrajectory(shootRings4);
-            servoBlock.open();
-            sleep(500);
-            shoot(3,false);
+            bot.wobbleMotor.setTargetPosition(0);
+            bot.wobbleMotor.setPower(0.2);
+            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(300);
             bot.followTrajectory(park4);
         }
         PoseStorage.currentPose = bot.getPoseEstimate();

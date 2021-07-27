@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.autonomy;
+package org.firstinspires.ftc.teamcode.autonomy.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.autonomy.AutoBase;
 
 @Autonomous
 public class AutoTestPowershots extends AutoBase {

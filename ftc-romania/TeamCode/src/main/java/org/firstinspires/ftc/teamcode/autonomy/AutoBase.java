@@ -76,6 +76,7 @@ public abstract class AutoBase extends LinearOpMode{
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
                 if (updatedRecognitions.size() == 0) {
                     // empty list.  no objects recognized.
+                    zona = 0.0;
                     telemetry.addData("rings", "0");
                 } else {
                     // list is not empty.
@@ -141,15 +142,15 @@ public abstract class AutoBase extends LinearOpMode{
         bot.followTrajectory(trajShoot);
         servoPerete.open();
         sleep(200);
-        shoot(1, false);
+        shoot(1);
         bot.turn(Math.toRadians(-6));
-        shoot(1,false);
+        shoot(1);
         bot.turn(Math.toRadians(-6));
-        shoot(1,false);
+        shoot(1);
         bot.outtakeMotor.setVelocity(0);
     }
 
-    private void shoot(int rings,boolean boxDown)
+    private void shoot(int rings)
     {
         for(int i=1;i<=rings;++i)
         {
@@ -160,14 +161,6 @@ public abstract class AutoBase extends LinearOpMode{
             bot.pistonMotor.setTargetPosition(0);
             bot.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(600);
-
-            if(boxDown)
-            {
-                servoBlock.close();
-                sleep(100);
-                servoBlock.open();
-                sleep(200);
-            }
         }
     }
 }

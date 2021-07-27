@@ -58,65 +58,59 @@ public class DriveRed extends LinearOpMode {
 
     SampleMecanumDrive drive;
 
-    double intakePower = 0;
+    //variabile outtake
     double outtakePower = 0;
-    double wobblePower = 0;
-    double pistonPower = 0.4;
-    double posCutie = 0.47;
-    double posPerete = 0.02;
-
     double basePowerOuttake = 1625;
     double powerShotPower = 1440;
     double powerUnit = 25;
-
-    int pistonRelease = -165;
-    int pistonClose = 0;
-
-    int wobbleRelease = 950;
-    int wobbleClose = 0;
+    Boolean cheieOuttakeUp = Boolean.FALSE;
+    Boolean cheieOuttakeDown = Boolean.FALSE;
+    Boolean cheieOutake = Boolean.FALSE;
+    Boolean okOuttake = Boolean.FALSE;
+    //outtake pid coefficients
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(52, 0, 4.6, 14);
 
     //variabile cutie
+    servo_block servoBlock = new servo_block();
     Boolean boxIsUp = Boolean.FALSE;
     Boolean servoBlockUp = Boolean.FALSE;
     Boolean servoBlockDown = Boolean.FALSE;
+    Boolean ok = Boolean.FALSE;
+    Boolean cheie = Boolean.FALSE;
+    double posCutie = 0.47;
 
     //variabile intake
-    Boolean cheie = Boolean.FALSE;
     Boolean cheieIntake = Boolean.FALSE;
+    Boolean isRunning = Boolean.FALSE;
+    double intakePower = 0;
 
     //variabile piston
     Boolean cheiePiston = Boolean.FALSE;
-
-    //variabile piston
-
-    //variabile outtake
-    Boolean cheieOuttakeUp = Boolean.FALSE;
-    Boolean cheieOuttakeDown = Boolean.FALSE;
+    int pistonRelease = -165;
+    int pistonClose = 0;
+    double pistonPower = 0.4;
 
     //variabile perete
+    servo_perete servoPerete = new servo_perete();
     Boolean pereteUp = Boolean.FALSE;
     Boolean pereteDown = Boolean.FALSE;
     Boolean cheiePerete = Boolean.FALSE;
     Boolean isOkPerete = Boolean.FALSE;
+    double posPerete = 0.02;
 
-    Boolean isRunning = Boolean.FALSE;
-
-    Boolean cheieOutake = Boolean.FALSE;
-    Boolean isOpened = Boolean.FALSE;
-    Boolean cheieWobbleS = Boolean.FALSE;
-    Boolean isOpenedM = Boolean.FALSE;
+    //variabile motor wobble
     Boolean cheieWobbleM = Boolean.FALSE;
-    Boolean ok = Boolean.FALSE;
-    Boolean okOuttake = Boolean.FALSE;
+    int wobbleRelease = 950;
+    int wobbleClose = 0;
+    Boolean isOpenedM = Boolean.FALSE;
+    double wobblePower = 0.2;
 
-    servo_block servoBlock = new servo_block();
+    //variabile servo wobble
     servo_wobble servoWobble = new servo_wobble();
-    servo_perete servoPerete = new servo_perete();
+    Boolean cheieWobbleS = Boolean.FALSE;
+    Boolean isOpened = Boolean.FALSE;
 
     Vector2d towerVector = new Vector2d(125,26);
-
-    //outtake pid coefficients
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(52, 0, 4.6, 14);
 
     @Override
     public void runOpMode() {
@@ -169,6 +163,7 @@ public class DriveRed extends LinearOpMode {
             // control to the automatic mode
             switch (currentMode) {
                 case DRIVER_CONTROL:
+                    //control sasiu
                     drive.setWeightedDrivePower(
                             new Pose2d(
                                     -gamepad1.right_stick_y,
@@ -192,6 +187,7 @@ public class DriveRed extends LinearOpMode {
                     }
                     else if(gamepad1.right_bumper)
                     {
+                        //powershot-uri automate
                         resetPositionLine();
                         servoBlock.open();
                         Trajectory powershot1 = drive.trajectoryBuilder(new Pose2d(63,0,0))
@@ -238,8 +234,6 @@ public class DriveRed extends LinearOpMode {
             drive.intakeMotor.setPower(intakePower);
             //Power To Outtake
             drive.outtakeMotor.setVelocity(outtakePower);
-            //Power to Wobble
-            drive.wobbleMotor.setPower(wobblePower);
         }
     }
 
@@ -336,12 +330,12 @@ public class DriveRed extends LinearOpMode {
             cheieWobbleM = false;
         if(isOpenedM) {
             //open wobble
-            moveWobble(wobbleRelease,0.2,0);
+            moveWobble(wobbleRelease,wobblePower,0);
         }
         else
         {
             //close wobble
-            moveWobble(wobbleClose,0.2,0);
+            moveWobble(wobbleClose,wobblePower,0);
         }
     }
 

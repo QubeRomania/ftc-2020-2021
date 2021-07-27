@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomy;
+package org.firstinspires.ftc.teamcode.autonomy.autos;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -25,11 +25,11 @@ import java.util.List;
  * This is an example of a more complex path to really test the tuning.
  */
 @Autonomous
-public class america_red_right extends LinearOpMode {
+public class america_red_left extends LinearOpMode {
 
     public SampleMecanumDrive bot;
-    public double powershotPower = 1220;
-    public double towerPower = 1600;
+    public double powershotPower = 1450;
+    public double towerPower = 1620;
     public double blocPos = 0.17;
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -54,9 +54,12 @@ public class america_red_right extends LinearOpMode {
 
         servoBlock.initBlock(hardwareMap);
         servoBlock.open();
-        servoWobble.initWobble(hardwareMap, false);
+        servoWobble.initWobble(hardwareMap, true);
         servoPerete.initPerete(hardwareMap);
-        servoPerete.setServoPositions(0.04);
+
+        /*
+        ================================================================== VUFORIA VISION ==============================================================
+         */
 
         initVuforia();
         initTfod();
@@ -105,12 +108,20 @@ public class america_red_right extends LinearOpMode {
             }
         }
 
+        /*
+        ============================================================== UNIVERSAL ================================================================
+         */
+
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
-                .splineTo(new Vector2d(63,0),Math.toRadians(10))
+                .splineTo(new Vector2d(63,-5),Math.toRadians(-13))
                 .build();
+
+        /*
+        ============================================================== 0 RINGS ===================================================================
+         */
 
         Trajectory putAwayWobble10 = bot.trajectoryBuilder(trajShoot.end())
                 .addTemporalMarker(0, ()->{
@@ -119,20 +130,21 @@ public class america_red_right extends LinearOpMode {
                     bot.wobbleMotor.setPower(0.2);
                     bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                .lineToLinearHeading(new Pose2d(63,0,Math.toRadians(-180)))
+                .lineToLinearHeading(new Pose2d(80,-25,Math.toRadians(100)))
                 .build();
 
-        Trajectory goBack0 = bot.trajectoryBuilder(putAwayWobble10.end())
-                .lineTo(new Vector2d(40,0))
+        Trajectory park = bot.trajectoryBuilder(putAwayWobble10.end())
+                .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
                 .build();
 
-        Trajectory park = bot.trajectoryBuilder(goBack0.end())
-                .lineToLinearHeading(new Pose2d(70,15,0))
-                .build();
+        /*
+        =============================================================== 1 RING =====================================================================
+         */
 
         Trajectory goToRing = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0,()->{
                     bot.outtakeMotor.setVelocity(towerPower);
+                    servoPerete.close();
                 })
                 .splineTo(new Vector2d(30,-17),0)
                 .build();
@@ -142,24 +154,24 @@ public class america_red_right extends LinearOpMode {
                 .build();
 
         Trajectory putAwayWobble11 = bot.trajectoryBuilder(trajShoot.end())
+                .lineToLinearHeading(new Pose2d(83,-11.5,Math.toRadians(180)))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(0);
                     bot.wobbleMotor.setTargetPosition(900);
                     bot.wobbleMotor.setPower(0.2);
                     bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                .lineToLinearHeading(new Pose2d(75,15,Math.toRadians(-180)))
                 .build();
 
         Trajectory takeRing1 = bot.trajectoryBuilder(putAwayWobble11.end())
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
                 })
-                .lineTo(new Vector2d(28,19))
+                .lineTo(new Vector2d(30,-17))
                 .build();
 
         Trajectory shoot1 = bot.trajectoryBuilder(takeRing1.end())
-                .lineToLinearHeading(new Pose2d(63, 17,Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(63,-17,Math.toRadians(-2)))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
@@ -169,35 +181,44 @@ public class america_red_right extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
                 .build();
 
+        /*
+        ========================================================= 4 RINGS ============================================================================
+         */
+
         Trajectory putAwayWobble14 = bot.trajectoryBuilder(trajShoot.end())
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(0);
-
+                    bot.wobbleMotor.setTargetPosition(900);
+                    bot.wobbleMotor.setPower(0.2);
+                    bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    servoPerete.close();
                 })
-                .lineToLinearHeading(new Pose2d(108,0,Math.toRadians(-160)))
+                .lineToLinearHeading(new Pose2d(125,-24,Math.toRadians(90)))
                 .build();
 
         Trajectory goToRings = bot.trajectoryBuilder(putAwayWobble14.end())
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
                 })
-                .splineTo(new Vector2d(30,18), Math.toRadians(-180))
+                .lineToLinearHeading(new Pose2d(30,-18, Math.toRadians(180)))
                 .build();
 
         Trajectory takeRings = bot.trajectoryBuilder(goToRings.end())
-                .lineTo(new Vector2d(28,18))
+                .lineTo(new Vector2d(28,-18))
                 .build();
 
         Trajectory shootRings4 = bot.trajectoryBuilder(takeRings.end())
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
-                .lineToLinearHeading(new Pose2d(63.5,17,Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(63.5,-17,Math.toRadians(-3)))
                 .build();
 
         Trajectory park4 = bot.trajectoryBuilder(shootRings4.end())
-                .lineToLinearHeading(new Pose2d(70,0, Math.toRadians(0)))
+                .lineTo(new Vector2d(70,0))
                 .build();
+
+
 
         waitForStart();
 
@@ -209,10 +230,9 @@ public class america_red_right extends LinearOpMode {
         if (isStopRequested()) return;
 
         if(zona == 0.0) {
-            sleep(1500);
             bot.followTrajectory(trajShoot);
             servoPerete.open();
-            sleep(200);
+            sleep(100);
             shoot(3,false);
             bot.outtakeMotor.setVelocity(0);
             bot.followTrajectory(putAwayWobble10);
@@ -222,16 +242,14 @@ public class america_red_right extends LinearOpMode {
             bot.wobbleMotor.setPower(0.2);
             bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(300);
-            bot.followTrajectory(goBack0);
-            sleep(7000);
             bot.followTrajectory(park);
         }
         else if(zona == 1.0) {
             bot.followTrajectory(trajShoot);
             servoPerete.open();
-            sleep(200);
+            sleep(100);
             shoot(3,false);
-            sleep(3000);
+            sleep(2500);
             bot.followTrajectory(putAwayWobble11);
             sleep(200);
             servoWobble.open();
@@ -241,6 +259,7 @@ public class america_red_right extends LinearOpMode {
             bot.followTrajectory(takeRing1);
             bot.followTrajectory(shoot1);
             servoBlock.open();
+            servoPerete.open();
             sleep(600);
             shoot(1,false);
             bot.wobbleMotor.setTargetPosition(0);
@@ -254,22 +273,23 @@ public class america_red_right extends LinearOpMode {
         {
             bot.followTrajectory(trajShoot);
             servoPerete.open();
-            sleep(200);
+            sleep(100);
             shoot(3,false);
             bot.followTrajectory(putAwayWobble14);
-            bot.wobbleMotor.setTargetPosition(900);
-            bot.wobbleMotor.setPower(0.2);
-            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(bot.wobbleMotor.isBusy());
             servoWobble.open();
             sleep(500);
             servoBlock.close();
+            sleep(100);
             bot.followTrajectory(goToRings);
             bot.followTrajectory(takeRings);
             bot.followTrajectory(shootRings4);
             servoBlock.open();
             sleep(500);
             shoot(3,false);
+            bot.wobbleMotor.setTargetPosition(0);
+            bot.wobbleMotor.setPower(0.2);
+            bot.wobbleMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(300);
             bot.followTrajectory(park4);
         }
         PoseStorage.currentPose = bot.getPoseEstimate();
