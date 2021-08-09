@@ -442,7 +442,7 @@ public class DriveRed extends LinearOpMode {
             movePiston(pistonRelease,0.3,380);
             movePiston(pistonClose,0.3,0);
             if(i!=rings)
-                sleep(400);
+                sleep(300);
         }
     }
 
