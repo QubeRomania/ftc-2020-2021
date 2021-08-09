@@ -40,10 +40,21 @@ public abstract class AutoBase extends LinearOpMode{
     public TFObjectDetector tfod;
     public double zona = 0;
 
-    public Vector2d powershotVector = new Vector2d(63,7);
-    public double powershotAngle = Math.toRadians(-1);
+    //================================================ RED ZONE ===========================================
+    public Vector2d highVectorRed = new Vector2d(63,0);
+    public double highAngleRed = Math.toRadians(5);
 
-    public Pose2d fin = new Pose2d(powershotVector, powershotAngle);
+    public Vector2d powershotVectorRed = new Vector2d(63,7);
+    public double powershotAngleRed = Math.toRadians(-1);
+
+    //================================================ BLUE ZONE ==========================================
+    public Vector2d highVectorBlue = new Vector2d(63,0);
+    public double highAngleBlue = Math.toRadians(-5);
+
+    public Vector2d powershotVectorBlue = new Vector2d(63,-7);
+    public double powershotAngleBlue = Math.toRadians(1);
+
+    public Pose2d fin = new Pose2d(0,0,0);
 
     public servo_block servoBlock = new servo_block();
     public servo_wobble servoWobble = new servo_wobble();
@@ -139,13 +150,13 @@ public abstract class AutoBase extends LinearOpMode{
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    public void shootPowershots()
+    public void shootPowershotsRed()
     {
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, () -> {
                     bot.outtakeMotor.setVelocity(powershotPower);
                 })
-                .splineTo(powershotVector, powershotAngle)
+                .splineTo(powershotVectorRed, powershotAngleRed)
                 .build();
         fin = trajShoot.end();
         bot.followTrajectory(trajShoot);
@@ -157,6 +168,39 @@ public abstract class AutoBase extends LinearOpMode{
         bot.turn(Math.toRadians(-6));
         shoot(1);
         bot.outtakeMotor.setVelocity(0);
+    }
+
+    public void shootPowershotsBlue()
+    {
+        Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
+                .addTemporalMarker(0, () -> {
+                    bot.outtakeMotor.setVelocity(powershotPower);
+                })
+                .splineTo(powershotVectorBlue, powershotAngleBlue)
+                .build();
+        fin = trajShoot.end();
+        bot.followTrajectory(trajShoot);
+        servoPerete.open();
+        sleep(200);
+        shoot(1);
+        bot.turn(Math.toRadians(6));
+        shoot(1);
+        bot.turn(Math.toRadians(6));
+        shoot(1);
+        bot.outtakeMotor.setVelocity(0);
+    }
+
+    public void shoothighGoalRed()
+    {
+        Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
+                .addTemporalMarker(0, ()->{
+                    bot.outtakeMotor.setVelocity(towerPower);
+                })
+                .splineTo(highVectorRed,highAngleRed)
+                .build();
+        fin = trajShoot.end();
+        shoot(3);
+
     }
 
     public void shoot(int rings)
