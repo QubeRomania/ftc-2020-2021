@@ -7,10 +7,10 @@ public class servo_camera {
     public Servo servo = null;
 
     public static double SERVO_RELEASE = 1;
-    public static double SERVO_RED_LEFT = 0.75;
-    public static double SERVO_RED_RIGHT = 0.6;
-    public static double SERVO_BLUE_LEFT = 0.75;
-    public static double SERVO_BLUE_RIGHT = 0.6;
+    public static double SERVO_RED_LEFT = 0.76;
+    public static double SERVO_RED_RIGHT = 0.56;
+    public static double SERVO_BLUE_LEFT = 0.76;
+    public static double SERVO_BLUE_RIGHT = 0.56;
 
     public void initCamera(HardwareMap hwMap)
     {

@@ -25,7 +25,7 @@ public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
     public double powershotPower = 1450;
-    public double towerPower = 1620;
+    public double towerPower = 1595;
     public double blocPos = 0.17;
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -42,7 +42,7 @@ public abstract class AutoBase extends LinearOpMode{
 
     //================================================ RED ZONE ===========================================
     public Vector2d highVectorRed = new Vector2d(63,0);
-    public double highAngleRed = Math.toRadians(5);
+    public double highAngleRed = Math.toRadians(9);
 
     public Vector2d powershotVectorRed = new Vector2d(63,7);
     public double powershotAngleRed = Math.toRadians(-1);
@@ -199,6 +199,7 @@ public abstract class AutoBase extends LinearOpMode{
                 .splineTo(highVectorRed,highAngleRed)
                 .build();
         fin = trajShoot.end();
+        bot.followTrajectory(trajShoot);
         shoot(3);
 
     }
