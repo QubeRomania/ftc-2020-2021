@@ -20,10 +20,10 @@ public class AutoRedLeft extends AutoBase {
         ============================================================== 0 RINGS ===================================================================
          */
 
-        Trajectory putAwayWobble10 = bot.trajectoryBuilder(fin)
+        Trajectory putAwayWobble10 = bot.trajectoryBuilder(new Pose2d(powershotVectorRed,powershotAngleRed))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(0);
-                    moveWobble(900,0.2,0);
+                    moveWobble(-900,0.2,0);
                 })
                 .lineToLinearHeading(new Pose2d(80,-25,Math.toRadians(90)))
                 .build();
@@ -51,10 +51,10 @@ public class AutoRedLeft extends AutoBase {
          /*
         ============================================================== 1 RING ===================================================================
          */
-        Trajectory putAwayWobble11 = bot.trajectoryBuilder(fin,true)
+        Trajectory putAwayWobble11 = bot.trajectoryBuilder(new Pose2d(powershotVectorRed,powershotAngleRed),true)
                 .addTemporalMarker(0, () -> {
                     bot.outtakeMotor.setVelocity(0);
-                    moveWobble(900,0.2,200);
+                    moveWobble(-900,0.2,200);
                 })
                 .lineToLinearHeading(new Pose2d(101, -9, Math.toRadians(90)))
                 .build();
@@ -86,8 +86,26 @@ public class AutoRedLeft extends AutoBase {
         /*
         ============================================================== 4 RINGS ===================================================================
          */
+        Trajectory putAwayWobble14 = bot.trajectoryBuilder(new Pose2d(powershotVectorRed,powershotAngleRed))
+                .addTemporalMarker(0, ()->{
+                    bot.outtakeMotor.setVelocity(0);
+                    moveWobble(-900,0.2,0);
+                })
+                .lineToLinearHeading(new Pose2d(120,22,Math.toRadians(90)))
+                .build();
 
 
+        Trajectory takeRings4 = bot.trajectoryBuilder(putAwayWobble14.end())
+                .addTemporalMarker(2,()->{
+                    bot.outtakeMotor.setVelocity(towerPower);
+                })
+                .strafeTo(new Vector2d(118,5))
+                .splineTo(new Vector2d(60,-10),Math.toRadians(-10))
+                .build();
+
+        Trajectory park4 = bot.trajectoryBuilder(takeRings4.end())
+                .lineTo(new Vector2d(70,0))
+                .build();
 
         while(!isStarted())
             recognizeRings();
@@ -95,6 +113,7 @@ public class AutoRedLeft extends AutoBase {
         waitForStart();
 
         tfod.shutdown();
+        moveWobble(-300,0.2,0);
 
         shootPowershotsRed();
 
@@ -102,12 +121,12 @@ public class AutoRedLeft extends AutoBase {
         {
             bot.followTrajectory(putAwayWobble10);
             releaseWobble();
-            moveWobble(0,0.3,300);
             bot.followTrajectory(goForward);
             bot.followTrajectory(takeRings);
             servoBlock.open();
             sleep(600);
             shoot(3);
+            moveWobble(0,0.3,400);
             bot.followTrajectory(park);
         }
         else if(zona == 1)
@@ -120,11 +139,19 @@ public class AutoRedLeft extends AutoBase {
             servoBlock.open();
             sleep(500); //wait the block to get up
             shoot(3);
+            moveWobble(0,0.3,400);
             bot.followTrajectory(park1);
         }
         else if(zona == 4)
         {
-
+            bot.followTrajectory(putAwayWobble14);
+            releaseWobble();
+            bot.followTrajectory(takeRings4);
+            servoBlock.open();
+            sleep(500);
+            shoot(3);
+            moveWobble(0,0.3,400);
+            bot.followTrajectory(park4);
         }
     }
 }

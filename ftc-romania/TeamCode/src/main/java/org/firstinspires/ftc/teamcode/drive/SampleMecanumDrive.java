@@ -98,7 +98,6 @@ public class SampleMecanumDrive extends MecanumDrive {
     public DcMotor intakeMotor = null;
     public DcMotorEx outtakeMotor = null;
     public DcMotor wobbleMotor = null;
-    public DcMotor pistonMotor = null;
     private VoltageSensor batteryVoltageSensor;
 
     private Pose2d lastPoseOnTurn;
@@ -156,8 +155,6 @@ public class SampleMecanumDrive extends MecanumDrive {
         outtakeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         wobbleMotor = hardwareMap.dcMotor.get("wobbleMotor");
         wobbleMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
-        pistonMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();

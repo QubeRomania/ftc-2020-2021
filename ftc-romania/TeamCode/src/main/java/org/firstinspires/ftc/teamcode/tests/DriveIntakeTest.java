@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleopGame;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_piston;
  * This sample utilizes the SampleMecanumDriveCancelable.java class.
  */
 @TeleOp
-public class DriveRed extends LinearOpMode {
+public class DriveIntakeTest extends LinearOpMode {
     // Define 2 states, drive control or automatic control
     enum Mode {
         DRIVER_CONTROL,
@@ -61,9 +61,9 @@ public class DriveRed extends LinearOpMode {
 
     //variabile outtake
     double outtakePower = 0;
-    double basePowerOuttake = 1620;
-    double powerShotPower = 1300;
-    double powerUnit = 20;
+    double basePowerOuttake = 1625;
+    double powerShotPower = 1440;
+    double powerUnit = 25;
     Boolean cheieOuttakeUp = Boolean.FALSE;
     Boolean cheieOuttakeDown = Boolean.FALSE;
     Boolean cheieOutake = Boolean.FALSE;
@@ -102,8 +102,8 @@ public class DriveRed extends LinearOpMode {
 
     //variabile motor wobble
     Boolean cheieWobbleM = Boolean.FALSE;
-    int wobbleRelease = -900;
-    int wobbleClose = -300;
+    int wobbleRelease = 950;
+    int wobbleClose = 0;
     Boolean isOpenedM = Boolean.FALSE;
     double wobblePower = 0.2;
 
@@ -139,7 +139,6 @@ public class DriveRed extends LinearOpMode {
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // Retrieve our pose from the PoseStorage.currentPose static field
         // See AutoTransferPose.java for further details
-        drive.setPoseEstimate(PoseStorage.currentPose);
 
         waitForStart();
 
@@ -174,41 +173,7 @@ public class DriveRed extends LinearOpMode {
                             )
                     );
 
-                    if (gamepad1.y) {
-                        targetAngle = Math.atan2(-poseEstimate.getY() + towerVector.getY(), -poseEstimate.getX() + towerVector.getX());
 
-                        drive.turnAsync(Angle.normDelta(targetAngle - poseEstimate.getHeading()));
-
-                        currentMode = Mode.AUTOMATIC_CONTROL;
-                    }
-                    else if(gamepad2.right_bumper)
-                    {
-                        shoot(3);
-
-                        currentMode = Mode.DRIVER_CONTROL;
-                    }
-                    else if(gamepad1.right_bumper)
-                    {
-                        //powershot-uri automate
-                        resetPositionLine();
-                        servoBlock.open();
-                        Trajectory powershot1 = drive.trajectoryBuilder(new Pose2d(63,0,0))
-                                .lineToLinearHeading(new Pose2d(63.5,-26, Math.toRadians(-1)))
-                                .build();
-
-                        drive.outtakeMotor.setVelocity(powerShotPower);
-
-                        drive.followTrajectory(powershot1);
-                        shoot(1);
-                        sleep(400);
-                        drive.turn(Math.toRadians(-6));
-                        shoot(1);
-                        sleep(400);
-                        drive.turn(Math.toRadians(-5));
-                        shoot(1);
-
-                        currentMode = Mode.AUTOMATIC_CONTROL;
-                    }
                     break;
                 case AUTOMATIC_CONTROL:
                     // If x is pressed, we break out of the automatic following
@@ -226,11 +191,11 @@ public class DriveRed extends LinearOpMode {
 
             intakeController();
             outtakeController();
-            pistonController();
-            servoBlockController();
-            servoWobbleController();
-            wobbleMotorController();
-            pereteController();
+            //pistonController();
+            //servoBlockController();
+            //servoWobbleController();
+            //wobbleMotorController();
+            //pereteController();
 
             //Power To Intake
             drive.intakeMotor.setPower(intakePower);
@@ -243,7 +208,9 @@ public class DriveRed extends LinearOpMode {
     {
         if(gamepad2.left_bumper && !cheiePiston)
         {
-            movePiston(0);
+            servoPiston.open();
+            sleep(0);
+            servoPiston.close();
             cheiePiston = true;
         }
         if(!gamepad2.left_bumper)
@@ -342,12 +309,12 @@ public class DriveRed extends LinearOpMode {
     void intakeController()
     {
         //button x makes the intake turn reverse, else turn with trigger
-        if(gamepad2.x && !cheieIntake)
+        if(gamepad1.x && !cheieIntake)
         {
             isRunning = !isRunning;
             cheieIntake = !cheieIntake;
         }
-        if(!(gamepad2.x))
+        if(!(gamepad1.x))
         {
             cheieIntake = false;
         }
@@ -356,7 +323,7 @@ public class DriveRed extends LinearOpMode {
             intakePower = -1;
         }
         else {
-            intakePower = gamepad2.right_trigger*0.8;
+            intakePower = gamepad1.right_trigger;
         }
     }
 
@@ -439,7 +406,7 @@ public class DriveRed extends LinearOpMode {
     {
         for(int i=1;i<=rings;++i)
         {
-            movePiston(200);
+            movePiston(100);
             if(i!=rings)
                 sleep(300);
         }

@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_block;
 import org.firstinspires.ftc.teamcode.hardware.servo_perete;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble;
 import org.firstinspires.ftc.teamcode.hardware.servo_camera;
+import org.firstinspires.ftc.teamcode.hardware.servo_piston;
 import org.firstinspires.ftc.teamcode.teleopGame.PoseStorage;
 
 import java.util.List;
@@ -24,8 +25,8 @@ import java.util.List;
 public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
-    public double powershotPower = 1450;
-    public double towerPower = 1595;
+    public double powershotPower = 1400;
+    public double towerPower = 1622;
     public double blocPos = 0.17;
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -45,11 +46,11 @@ public abstract class AutoBase extends LinearOpMode{
     public double highAngleRed = Math.toRadians(9);
 
     public Vector2d powershotVectorRed = new Vector2d(63,7);
-    public double powershotAngleRed = Math.toRadians(-1);
+    public double powershotAngleRed = Math.toRadians(-2);
 
     //================================================ BLUE ZONE ==========================================
-    public Vector2d highVectorBlue = new Vector2d(63,0);
-    public double highAngleBlue = Math.toRadians(-5);
+    public Vector2d highVectorBlue = new Vector2d(63,-5);
+    public double highAngleBlue = Math.toRadians(8);
 
     public Vector2d powershotVectorBlue = new Vector2d(63,-7);
     public double powershotAngleBlue = Math.toRadians(1);
@@ -60,6 +61,7 @@ public abstract class AutoBase extends LinearOpMode{
     public servo_wobble servoWobble = new servo_wobble();
     public servo_perete servoPerete = new servo_perete();
     public servo_camera servoCamera = new servo_camera();
+    public servo_piston servoPiston = new servo_piston();
 
     public void initRobot()
     {
@@ -70,8 +72,8 @@ public abstract class AutoBase extends LinearOpMode{
         servoWobble.initWobble(hardwareMap, true);
         servoPerete.initPerete(hardwareMap);
         servoCamera.initCamera(hardwareMap);
+        servoPiston.initPiston(hardwareMap);
         bot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bot.pistonMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         initCamera();
     }
@@ -204,17 +206,24 @@ public abstract class AutoBase extends LinearOpMode{
 
     }
 
+    public void shoothighGoalBlue()
+    {
+        Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
+                .addTemporalMarker(0, ()->{
+                    bot.outtakeMotor.setVelocity(towerPower);
+                })
+                .splineTo(highVectorBlue,highAngleBlue)
+                .build();
+        fin = trajShoot.end();
+        bot.followTrajectory(trajShoot);
+        shoot(5);
+    }
+
     public void shoot(int rings)
     {
         for(int i=1;i<=rings;++i)
         {
-            bot.pistonMotor.setPower(0.3);
-            bot.pistonMotor.setTargetPosition(-170);
-            bot.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(380);
-            bot.pistonMotor.setTargetPosition(0);
-            bot.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(300);
+            movePiston(2000);
         }
     }
 
@@ -236,11 +245,11 @@ public abstract class AutoBase extends LinearOpMode{
         sleep(200);
     }
 
-    public void movePiston(int position, double power, int timeToSleep)
+    public void movePiston(int timeToSleep)
     {
-        bot.pistonMotor.setPower(power);
-        bot.pistonMotor.setTargetPosition(position);
-        bot.pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        servoPiston.open();
+        sleep(100);
+        servoPiston.close();
         sleep(timeToSleep);
     }
 
