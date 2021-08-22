@@ -61,7 +61,7 @@ public class DriveRed extends LinearOpMode {
 
     //variabile outtake
     double outtakePower = 0;
-    double basePowerOuttake = 1620;
+    double basePowerOuttake = 1420;
     double powerShotPower = 1300;
     double powerUnit = 20;
     Boolean cheieOuttakeUp = Boolean.FALSE;
@@ -69,7 +69,7 @@ public class DriveRed extends LinearOpMode {
     Boolean cheieOutake = Boolean.FALSE;
     Boolean okOuttake = Boolean.FALSE;
     //outtake pid coefficients
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(52, 0, 4.6, 14);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
 
     //variabile cutie
     servo_block servoBlock = new servo_block();
@@ -439,9 +439,7 @@ public class DriveRed extends LinearOpMode {
     {
         for(int i=1;i<=rings;++i)
         {
-            movePiston(200);
-            if(i!=rings)
-                sleep(300);
+            movePiston(150);
         }
     }
 
@@ -453,7 +451,7 @@ public class DriveRed extends LinearOpMode {
     void movePiston(int timeToSleep)
     {
         servoPiston.open();
-        sleep(100);
+        sleep(150);
         servoPiston.close();
         sleep(timeToSleep);
     }

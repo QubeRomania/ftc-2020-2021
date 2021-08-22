@@ -12,24 +12,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
-import org.firstinspires.ftc.teamcode.hardware.servo_block;
-import com.acmerobotics.dashboard.FtcDashboard;
 
 @Config
 @TeleOp
 public class VeloPidTuner extends LinearOpMode {
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(55, 0, 5, 15);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0, 0);
 
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private VoltageSensor batteryVoltageSensor;
 
-    servo_block servoBlock = new servo_block();
-
     @Override
     public void runOpMode() throws InterruptedException {
         // Change my id
         DcMotorEx myMotor = hardwareMap.get(DcMotorEx.class, "outtakeMotor");
+        myMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Reverse as appropriate
         // myMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -46,9 +43,6 @@ public class VeloPidTuner extends LinearOpMode {
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         setPIDFCoefficients(myMotor, MOTOR_VELO_PID);
-
-        servoBlock.initBlock(hardwareMap);
-        servoBlock.open();
 
         TuningController tuningController = new TuningController();
 

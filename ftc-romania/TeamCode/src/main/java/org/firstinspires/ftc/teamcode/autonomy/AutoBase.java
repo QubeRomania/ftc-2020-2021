@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -25,9 +26,10 @@ import java.util.List;
 public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
-    public double powershotPower = 1400;
-    public double towerPower = 1622;
+    public double powershotPower = 1300;
+    public double towerPower = 1425;
     public double blocPos = 0.17;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
@@ -45,8 +47,8 @@ public abstract class AutoBase extends LinearOpMode{
     public Vector2d highVectorRed = new Vector2d(63,0);
     public double highAngleRed = Math.toRadians(9);
 
-    public Vector2d powershotVectorRed = new Vector2d(63,7);
-    public double powershotAngleRed = Math.toRadians(-2);
+    public Vector2d powershotVectorRed = new Vector2d(63,-2);
+    public double powershotAngleRed = Math.toRadians(2);
 
     //================================================ BLUE ZONE ==========================================
     public Vector2d highVectorBlue = new Vector2d(63,-5);
@@ -74,6 +76,7 @@ public abstract class AutoBase extends LinearOpMode{
         servoCamera.initCamera(hardwareMap);
         servoPiston.initPiston(hardwareMap);
         bot.wobbleMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bot.outtakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
 
         initCamera();
     }
@@ -163,7 +166,7 @@ public abstract class AutoBase extends LinearOpMode{
         fin = trajShoot.end();
         bot.followTrajectory(trajShoot);
         servoPerete.open();
-        sleep(200);
+        sleep(2000);
         shoot(1);
         bot.turn(Math.toRadians(-6));
         shoot(1);
@@ -185,9 +188,9 @@ public abstract class AutoBase extends LinearOpMode{
         servoPerete.open();
         sleep(200);
         shoot(1);
-        bot.turn(Math.toRadians(6));
+        bot.turn(Math.toRadians(7));
         shoot(1);
-        bot.turn(Math.toRadians(6));
+        bot.turn(Math.toRadians(7));
         shoot(1);
         bot.outtakeMotor.setVelocity(0);
     }
@@ -223,7 +226,7 @@ public abstract class AutoBase extends LinearOpMode{
     {
         for(int i=1;i<=rings;++i)
         {
-            movePiston(2000);
+            movePiston(750);
         }
     }
 
