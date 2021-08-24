@@ -20,8 +20,12 @@ public class AutoRedRight extends AutoBase {
         ============================================================== 0 RINGS ===================================================================
          */
 
+        Trajectory putAwayWobble10 = bot.trajectoryBuilder(new Pose2d(highVectorRed,highAngleRed))
+                .lineToLinearHeading(new Pose2d(58,0,Math.toRadians(180)))
+                .build();
 
-        Trajectory waitForAlliance = bot.trajectoryBuilder(new Pose2d(highVectorRed,Math.toRadians(180)))
+
+        Trajectory waitForAlliance = bot.trajectoryBuilder(putAwayWobble10.end())
                 .lineToLinearHeading(new Pose2d(28,-3,Math.toRadians(180)))
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
@@ -90,7 +94,7 @@ public class AutoRedRight extends AutoBase {
 
         if(zona == 0)
         {
-            bot.turn(Math.toRadians(180 -highAngleRed));
+            bot.followTrajectory(putAwayWobble10);
             moveWobble(-900,0.2,1800);
             releaseWobble();
             bot.followTrajectory(waitForAlliance);

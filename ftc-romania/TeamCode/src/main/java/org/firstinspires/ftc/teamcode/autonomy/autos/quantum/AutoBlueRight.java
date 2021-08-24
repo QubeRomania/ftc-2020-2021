@@ -21,30 +21,30 @@ public class AutoBlueRight extends AutoBase {
         ============================================================== 0 RINGS ===================================================================
          */
 
-        Trajectory putAwayWobble10 = bot.trajectoryBuilder(new Pose2d(highVectorBlue,highAngleBlue))
+        Trajectory putAwayWobble10 = bot.trajectoryBuilder(new Pose2d(powershotVectorBlue,powershotAngleBlue))
                 .addTemporalMarker(0, ()->{
                     bot.outtakeMotor.setVelocity(0);
-                    moveWobble(-900,0.2,0);
+                    moveWobble(-870,0.2,0);
                 })
                 .lineToLinearHeading(new Pose2d(75,25,Math.toRadians(-100)))
                 .build();
 
         Trajectory park = bot.trajectoryBuilder(putAwayWobble10.end())
-                .lineToLinearHeading(new Pose2d(70,0,Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(70,-5,Math.toRadians(0)))
                 .build();
 
          /*
         ============================================================== 1 RING ===================================================================
          */
-        Trajectory putAwayWobble11 = bot.trajectoryBuilder(new Pose2d(highVectorBlue,highAngleBlue),true)
+        Trajectory putAwayWobble11 = bot.trajectoryBuilder(new Pose2d(powershotVectorBlue,highAngleBlue),true)
                 .addTemporalMarker(0, () -> {
                     bot.outtakeMotor.setVelocity(0);
-                    moveWobble(-900,0.2,200);
+                    moveWobble(-870,0.2,200);
                 })
                 .lineToLinearHeading(new Pose2d(101, -6, Math.toRadians(-90)))
                 .build();
 
-        Trajectory returnBack = bot.trajectoryBuilder(putAwayWobble11.end())
+        /*Trajectory returnBack = bot.trajectoryBuilder(putAwayWobble11.end())
                 .splineTo(new Vector2d(80,0), Math.toRadians(180))
                 .splineTo(new Vector2d(45,18), Math.toRadians(180))
                 .addTemporalMarker(0, ()->{
@@ -62,19 +62,20 @@ public class AutoBlueRight extends AutoBase {
                 })
                 .lineToLinearHeading(new Pose2d(63,10,Math.toRadians(-6)))
                 .build();
+         */
 
-        Trajectory park1 = bot.trajectoryBuilder(trajShooting.end())
-                .lineTo(new Vector2d(70,0))
+        Trajectory park1 = bot.trajectoryBuilder(putAwayWobble11.end())
+                .splineTo(new Vector2d(70,-6), Math.toRadians(-180))
                 .build();
 
         /*
         ============================================================== 4 RINGS ===================================================================
          */
 
-        Trajectory putAwayWobble14 = bot.trajectoryBuilder(new Pose2d(highVectorBlue,highAngleBlue),true)
+        Trajectory putAwayWobble14 = bot.trajectoryBuilder(new Pose2d(powershotVectorBlue,powershotAngleBlue),true)
                 .addTemporalMarker(0, () -> {
                     bot.outtakeMotor.setVelocity(0);
-                    moveWobble(-900,0.2,200);
+                    moveWobble(-870,0.2,200);
                 })
                 .lineToLinearHeading(new Pose2d(120,22,Math.toRadians(-90)))
                 .build();
@@ -93,7 +94,8 @@ public class AutoBlueRight extends AutoBase {
         tfod.shutdown();
         moveWobble(-300,0.2,0);
 
-        shoothighGoalBlue();
+        shootPowershotsBlue();
+        sleep(15000);
 
         if(zona == 0)
         {
@@ -107,12 +109,6 @@ public class AutoBlueRight extends AutoBase {
             bot.followTrajectory(putAwayWobble11);
             releaseWobble();
             moveWobble(0,0.3,0);
-            bot.followTrajectory(returnBack);
-            bot.followTrajectory(trajShooting);
-            sleep(500); //wait for intake to take the ring
-            servoBlock.open();
-            sleep(500); //wait the block to get up
-            shoot(3);
             bot.followTrajectory(park1);
         }
         else if(zona == 4)

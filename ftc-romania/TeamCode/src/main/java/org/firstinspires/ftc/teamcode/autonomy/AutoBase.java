@@ -26,8 +26,8 @@ import java.util.List;
 public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
-    public double powershotPower = 1300;
-    public double towerPower = 1425;
+    public double powershotPower = 1250;
+    public double towerPower = 1370;
     public double blocPos = 0.17;
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
 
@@ -47,15 +47,15 @@ public abstract class AutoBase extends LinearOpMode{
     public Vector2d highVectorRed = new Vector2d(63,0);
     public double highAngleRed = Math.toRadians(9);
 
-    public Vector2d powershotVectorRed = new Vector2d(63,-2);
+    public Vector2d powershotVectorRed = new Vector2d(63,0);
     public double powershotAngleRed = Math.toRadians(2);
 
     //================================================ BLUE ZONE ==========================================
     public Vector2d highVectorBlue = new Vector2d(63,-5);
     public double highAngleBlue = Math.toRadians(8);
 
-    public Vector2d powershotVectorBlue = new Vector2d(63,-7);
-    public double powershotAngleBlue = Math.toRadians(1);
+    public Vector2d powershotVectorBlue = new Vector2d(63,-8.5);
+    public double powershotAngleBlue = Math.toRadians(0);
 
     public Pose2d fin = new Pose2d(0,0,0);
 
@@ -179,7 +179,7 @@ public abstract class AutoBase extends LinearOpMode{
     {
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, () -> {
-                    bot.outtakeMotor.setVelocity(powershotPower);
+                    bot.outtakeMotor.setVelocity(powershotPower+25);
                 })
                 .splineTo(powershotVectorBlue, powershotAngleBlue)
                 .build();
@@ -188,9 +188,11 @@ public abstract class AutoBase extends LinearOpMode{
         servoPerete.open();
         sleep(200);
         shoot(1);
-        bot.turn(Math.toRadians(7));
+        bot.turn(Math.toRadians(-6));
         shoot(1);
-        bot.turn(Math.toRadians(7));
+        bot.outtakeMotor.setVelocity(powershotPower+20);
+        sleep(100);
+        bot.turn(Math.toRadians(-6));
         shoot(1);
         bot.outtakeMotor.setVelocity(0);
     }
@@ -205,6 +207,7 @@ public abstract class AutoBase extends LinearOpMode{
                 .build();
         fin = trajShoot.end();
         bot.followTrajectory(trajShoot);
+        sleep(200);
         shoot(3);
 
     }

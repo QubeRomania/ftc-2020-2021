@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_block {
     public Servo servo = null;
 
-    public static double SERVO_RELEASE = 0.67 ; //0.63
+    public static double SERVO_RELEASE = 0.68 ; //0.63
     public static double SERVO_CLOSE = 0.45; //0.47
 
     public void initBlock(HardwareMap hwMap)

@@ -61,9 +61,9 @@ public class DriveRed extends LinearOpMode {
 
     //variabile outtake
     double outtakePower = 0;
-    double basePowerOuttake = 1420;
+    double basePowerOuttake = 1350;
     double powerShotPower = 1300;
-    double powerUnit = 20;
+    double powerUnit = 10;
     Boolean cheieOuttakeUp = Boolean.FALSE;
     Boolean cheieOuttakeDown = Boolean.FALSE;
     Boolean cheieOutake = Boolean.FALSE;
@@ -102,7 +102,7 @@ public class DriveRed extends LinearOpMode {
 
     //variabile motor wobble
     Boolean cheieWobbleM = Boolean.FALSE;
-    int wobbleRelease = -900;
+    int wobbleRelease = -870;
     int wobbleClose = -300;
     Boolean isOpenedM = Boolean.FALSE;
     double wobblePower = 0.2;
