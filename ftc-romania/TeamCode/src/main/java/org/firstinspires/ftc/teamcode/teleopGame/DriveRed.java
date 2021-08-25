@@ -61,7 +61,7 @@ public class DriveRed extends LinearOpMode {
 
     //variabile outtake
     double outtakePower = 0;
-    double basePowerOuttake = 1350;
+    double basePowerOuttake = 1310;
     double powerShotPower = 1300;
     double powerUnit = 10;
     Boolean cheieOuttakeUp = Boolean.FALSE;
@@ -69,7 +69,7 @@ public class DriveRed extends LinearOpMode {
     Boolean cheieOutake = Boolean.FALSE;
     Boolean okOuttake = Boolean.FALSE;
     //outtake pid coefficients
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14.5); // 70,0,15,14
 
     //variabile cutie
     servo_block servoBlock = new servo_block();
@@ -106,6 +106,8 @@ public class DriveRed extends LinearOpMode {
     int wobbleClose = -300;
     Boolean isOpenedM = Boolean.FALSE;
     double wobblePower = 0.2;
+    Boolean cheieFailSafe = Boolean.FALSE;
+    Boolean isChanged = Boolean.FALSE;
 
     //variabile servo wobble
     servo_wobble servoWobble = new servo_wobble();
@@ -336,6 +338,26 @@ public class DriveRed extends LinearOpMode {
         {
             //close wobble
             moveWobble(wobbleClose,wobblePower,0);
+        }
+
+        if(gamepad1.y && !cheieFailSafe)
+        {
+            isChanged = !isChanged;
+            cheieFailSafe = !cheieFailSafe;
+        }
+        if(!gamepad1.y)
+            cheieFailSafe = false;
+        if(isChanged)
+        {
+            if(wobbleRelease != 600) {
+                wobbleRelease = 600;
+                wobbleClose = 100;
+            }
+            else
+            {
+                wobbleRelease = -870;
+                wobbleClose = -300;
+            }
         }
     }
 

@@ -27,7 +27,7 @@ public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
     public double powershotPower = 1250;
-    public double towerPower = 1370;
+    public double towerPower = 1310;
     public double blocPos = 0.17;
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
 
@@ -44,8 +44,8 @@ public abstract class AutoBase extends LinearOpMode{
     public double zona = 0;
 
     //================================================ RED ZONE ===========================================
-    public Vector2d highVectorRed = new Vector2d(63,0);
-    public double highAngleRed = Math.toRadians(9);
+    public Vector2d highVectorRed = new Vector2d(63,-3);
+    public double highAngleRed = Math.toRadians(11);
 
     public Vector2d powershotVectorRed = new Vector2d(63,0);
     public double powershotAngleRed = Math.toRadians(2);

@@ -46,11 +46,11 @@ public class AutoRedRight extends AutoBase {
                     bot.outtakeMotor.setVelocity(0);
                     moveWobble(-900,0.2,200);
                 })
-                .lineToLinearHeading(new Pose2d(84, 10, Math.toRadians(-140)))
+                .lineToLinearHeading(new Pose2d(84, 5, Math.toRadians(-130)))
                 .build();
 
         Trajectory returnBack = bot.trajectoryBuilder(putAwayWobble11.end())
-                .splineTo(new Vector2d(46,2), Math.toRadians(110))
+                .splineTo(new Vector2d(44,5), Math.toRadians(100))
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
                     servoBlock.close();
@@ -61,7 +61,7 @@ public class AutoRedRight extends AutoBase {
                 .build();
 
         Trajectory takeRing = bot.trajectoryBuilder(returnBack.end())
-                .strafeTo(new Vector2d(42,12))
+                .strafeTo(new Vector2d(43,12))
                 .build();
 
         Trajectory trajShooting = bot.trajectoryBuilder(takeRing.end())
@@ -72,13 +72,56 @@ public class AutoRedRight extends AutoBase {
                 .build();
 
         Trajectory park1 = bot.trajectoryBuilder(trajShooting.end())
-                .lineTo(new Vector2d(70,0))
+                .lineToLinearHeading(new Pose2d(70,0,0))
                 .build();
 
         /*
         ============================================================== 4 RINGS ===================================================================
          */
 
+        Trajectory putAwayWobble14 = bot.trajectoryBuilder(new Pose2d(highVectorRed,highAngleRed))
+                .lineToLinearHeading(new Pose2d(108,-3,Math.toRadians(180)))
+                .addTemporalMarker(2,()->{
+                    moveWobble(850,0.2,0);
+                })
+                .build();
+
+        Trajectory returnBack4 = bot.trajectoryBuilder(putAwayWobble14.end())
+                .strafeTo(new Vector2d(63,-3))
+                .splineTo(new Vector2d(43,5), Math.toRadians(100))
+                .addTemporalMarker(0,()->{
+                    servoBlock.open();
+                    bot.intakeMotor.setPower(0.8);
+                })
+                .build();
+
+        Trajectory getRings = bot.trajectoryBuilder(returnBack4.end())
+                .strafeTo(new Vector2d(42,12))
+                .build();
+
+        Trajectory shootRings = bot.trajectoryBuilder(getRings.end())
+                .lineToLinearHeading(new Pose2d(63,-3,Math.toRadians(9)))
+                .build();
+
+        Trajectory goBack4 = bot.trajectoryBuilder(shootRings.end())
+                .lineToLinearHeading(new Pose2d(43,5,Math.toRadians(100)))
+                .addTemporalMarker(0,()->{
+                    servoBlock.close();
+                    bot.intakeMotor.setPower(0.8);
+                })
+                .build();
+
+        Trajectory takeRest = bot.trajectoryBuilder(goBack4.end())
+                .strafeTo(new Vector2d(41,12))
+                .build();
+
+        Trajectory shootRest = bot.trajectoryBuilder(takeRest.end())
+                .lineToLinearHeading(new Pose2d(63,-3,Math.toRadians(9)))
+                .build();
+
+        Trajectory park4 = bot.trajectoryBuilder(shootRest.end())
+                .lineToLinearHeading(new Pose2d(70,-3,Math.toRadians(0)))
+                .build();
 
 
         while(!isStarted())
@@ -120,7 +163,23 @@ public class AutoRedRight extends AutoBase {
         }
         else if(zona == 4)
         {
-
+            bot.followTrajectory(putAwayWobble14);
+            releaseWobble();
+            bot.followTrajectory(returnBack);
+            bot.followTrajectory(getRings);
+            bot.followTrajectory(shootRings);
+            servoBlock.open();
+            bot.intakeMotor.setPower(0);
+            sleep(500);
+            shoot(3);
+            bot.followTrajectory(goBack4);
+            bot.followTrajectory(takeRest);
+            bot.followTrajectory(shootRest);
+            servoBlock.open();
+            bot.intakeMotor.setPower(0);
+            sleep(500);
+            shoot(3);
+            bot.followTrajectory(park4);
         }
     }
 }
