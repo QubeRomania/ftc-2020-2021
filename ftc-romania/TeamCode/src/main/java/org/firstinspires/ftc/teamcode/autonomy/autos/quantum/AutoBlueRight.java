@@ -26,7 +26,7 @@ public class AutoBlueRight extends AutoBase {
                     bot.outtakeMotor.setVelocity(0);
                     moveWobble(-870,0.2,0);
                 })
-                .lineToLinearHeading(new Pose2d(83,29,Math.toRadians(-100)))
+                .lineToLinearHeading(new Pose2d(80,29,Math.toRadians(-100)))
                 .build();
 
         Trajectory takeRings = bot.trajectoryBuilder(putAwayWobble10.end())
@@ -99,7 +99,7 @@ public class AutoBlueRight extends AutoBase {
                 .build();
 
         Trajectory trajShooting4 = bot.trajectoryBuilder(takeRings4.end(),true)
-                .splineTo(powershotVectorBlue,Math.toRadians(-15))
+                .splineTo(powershotVectorBlue,Math.toRadians(15))
                 .build();
 
         Trajectory park4 = bot.trajectoryBuilder(trajShooting4.end())
