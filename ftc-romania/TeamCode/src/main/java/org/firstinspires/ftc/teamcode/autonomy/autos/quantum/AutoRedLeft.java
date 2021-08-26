@@ -29,6 +29,7 @@ public class AutoRedLeft extends AutoBase {
                 .build();
 
         Trajectory goForward = bot.trajectoryBuilder(putAwayWobble10.end())
+                .strafeTo(new Vector2d(78,-23))
                 .splineTo(new Vector2d(118,-34), Math.toRadians(90))
                 .addTemporalMarker(0, ()->{
                     bot.intakeMotor.setPower(1);
@@ -41,38 +42,45 @@ public class AutoRedLeft extends AutoBase {
                     bot.outtakeMotor.setVelocity(towerPower);
                 })
                 .strafeTo(new Vector2d(118,5))
-                .splineTo(new Vector2d(60,-2),Math.toRadians(-19))
+                .splineTo(new Vector2d(90,-6), Math.toRadians(-90))
                 .build();
 
-        Trajectory park = bot.trajectoryBuilder(takeRings.end())
-                .lineTo(new Vector2d(70,0))
+        Trajectory trajShooting = bot.trajectoryBuilder(takeRings.end(),true)
+                .splineTo(new Vector2d(60,0),Math.toRadians(158))
+                .build();
+
+        Trajectory park = bot.trajectoryBuilder(trajShooting.end())
+                .lineToLinearHeading(new Pose2d(70,0,0))
                 .build();
 
          /*
         ============================================================== 1 RING ===================================================================
          */
-        Trajectory putAwayWobble11 = bot.trajectoryBuilder(new Pose2d(powershotVectorRed,powershotAngleRed),true)
+        Trajectory putAwayWobble11 = bot.trajectoryBuilder(new Pose2d(powershotVectorRed,powershotAngleRed))
                 .addTemporalMarker(0, () -> {
                     bot.outtakeMotor.setVelocity(0);
                     moveWobble(-850,0.2,200);
                 })
-                .lineToLinearHeading(new Pose2d(99, -10, Math.toRadians(90)))
+                .splineTo(new Vector2d(99,-38),Math.toRadians(-90))
                 .build();
 
-        Trajectory returnBack = bot.trajectoryBuilder(putAwayWobble11.end())
-                .splineTo(new Vector2d(108,-7),Math.toRadians(90))
-                .splineTo(new Vector2d(60,-2), Math.toRadians(-19))
-                .addTemporalMarker(0, ()->{
-                    bot.intakeMotor.setPower(1);
-                    servoBlock.close();
-                })
-                .addTemporalMarker(0.5,()->{
+        Trajectory takeRings1 = bot.trajectoryBuilder(putAwayWobble11.end())
+                .addTemporalMarker(0.3,()->{
                     moveWobble(0,0.2,0);
                 })
+                .addTemporalMarker(5,()->{
+                    bot.outtakeMotor.setVelocity(towerPower);
+                })
+                .splineTo(new Vector2d(111,-40),Math.toRadians(90))
+                .splineTo(new Vector2d(111,5),Math.toRadians(90))
+                .splineTo(new Vector2d(90,-6), Math.toRadians(-90))
                 .build();
 
+        Trajectory trajShooting1 = bot.trajectoryBuilder(takeRings1.end(),true)
+                .splineTo(new Vector2d(60,0),Math.toRadians(158))
+                .build();
 
-        Trajectory park1 = bot.trajectoryBuilder(returnBack.end())
+        Trajectory park1 = bot.trajectoryBuilder(trajShooting1.end())
                 .lineTo(new Vector2d(70,0))
                 .build();
 
@@ -111,6 +119,8 @@ public class AutoRedLeft extends AutoBase {
         waitForStart();
 
         tfod.shutdown();
+
+
         moveWobble(-300,0.2,0);
 
         shootPowershotsRed();
@@ -119,8 +129,10 @@ public class AutoRedLeft extends AutoBase {
         {
             bot.followTrajectory(putAwayWobble10);
             releaseWobble();
+            moveWobble(0,0.3,0);
             bot.followTrajectory(goForward);
             bot.followTrajectory(takeRings);
+            bot.followTrajectory(trajShooting);
             servoBlock.open();
             sleep(600);
             shoot(3);
@@ -129,9 +141,11 @@ public class AutoRedLeft extends AutoBase {
         }
         else if(zona == 1)
         {
+            servoPerete.open();
             bot.followTrajectory(putAwayWobble11);
             releaseWobble();
-            bot.followTrajectory(returnBack);
+            bot.followTrajectory(takeRings1);
+            bot.followTrajectory(trajShooting1);
             bot.outtakeMotor.setVelocity(towerPower);
             sleep(500); //wait for intake to take the ring
             servoBlock.open();
@@ -142,6 +156,7 @@ public class AutoRedLeft extends AutoBase {
         }
         else if(zona == 4)
         {
+            servoPerete.open();
             sleep(1500);
             bot.followTrajectory(putAwayWobble14);
             releaseWobble();

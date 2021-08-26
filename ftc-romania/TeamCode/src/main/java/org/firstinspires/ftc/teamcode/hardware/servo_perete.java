@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_perete {
     public Servo servo = null;
 
-    public static double SERVO_RELEASE = 0.69;
+    public static double SERVO_RELEASE = 0.65;
     public static double SERVO_CLOSE = 0.04;
 
     public void initPerete(HardwareMap hwMap)
     {
         servo = hwMap.get(Servo.class, "servoPerete");
-        close();
+        open();
     }
 
     public void setServoPositions(double pos)

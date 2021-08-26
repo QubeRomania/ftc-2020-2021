@@ -26,10 +26,10 @@ import java.util.List;
 public abstract class AutoBase extends LinearOpMode{
 
     public SampleMecanumDrive bot;
-    public double powershotPower = 1250;
-    public double towerPower = 1310;
+    public double powershotPower = 1230;
+    public double towerPower = 1300;
     public double blocPos = 0.17;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(60, 0, 14, 14.5);
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
@@ -48,14 +48,14 @@ public abstract class AutoBase extends LinearOpMode{
     public double highAngleRed = Math.toRadians(11);
 
     public Vector2d powershotVectorRed = new Vector2d(63,0);
-    public double powershotAngleRed = Math.toRadians(2);
+    public double powershotAngleRed = Math.toRadians(8);
 
     //================================================ BLUE ZONE ==========================================
-    public Vector2d highVectorBlue = new Vector2d(63,-5);
-    public double highAngleBlue = Math.toRadians(8);
+    public Vector2d highVectorBlue = new Vector2d(63,-3);
+    public double highAngleBlue = Math.toRadians(-16);
 
     public Vector2d powershotVectorBlue = new Vector2d(63,-8.5);
-    public double powershotAngleBlue = Math.toRadians(0);
+    public double powershotAngleBlue = Math.toRadians(Math.toRadians(6));
 
     public Pose2d fin = new Pose2d(0,0,0);
 
@@ -179,7 +179,7 @@ public abstract class AutoBase extends LinearOpMode{
     {
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, () -> {
-                    bot.outtakeMotor.setVelocity(powershotPower+25);
+                    bot.outtakeMotor.setVelocity(powershotPower+20);
                 })
                 .splineTo(powershotVectorBlue, powershotAngleBlue)
                 .build();
@@ -201,7 +201,7 @@ public abstract class AutoBase extends LinearOpMode{
     {
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, ()->{
-                    bot.outtakeMotor.setVelocity(towerPower);
+                    bot.outtakeMotor.setVelocity(towerPower-18);
                 })
                 .splineTo(highVectorRed,highAngleRed)
                 .build();
@@ -216,13 +216,13 @@ public abstract class AutoBase extends LinearOpMode{
     {
         Trajectory trajShoot = bot.trajectoryBuilder(new Pose2d())
                 .addTemporalMarker(0, ()->{
-                    bot.outtakeMotor.setVelocity(towerPower);
+                    bot.outtakeMotor.setVelocity(towerPower-20);
                 })
                 .splineTo(highVectorBlue,highAngleBlue)
                 .build();
         fin = trajShoot.end();
         bot.followTrajectory(trajShoot);
-        shoot(5);
+        shoot(3);
     }
 
     public void shoot(int rings)

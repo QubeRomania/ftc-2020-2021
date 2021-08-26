@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.servo_block;
+import org.firstinspires.ftc.teamcode.hardware.servo_piston;
 
 @Config
 @TeleOp
@@ -40,14 +41,14 @@ public class PidTest extends LinearOpMode {
 
     Boolean cheie = Boolean.FALSE;
 
-    DcMotorEx outtakeMotor = null;
-    DcMotor pistonMotor;
+    DcMotorEx outtakeMotor;
+    servo_piston servoPiston = new servo_piston();
 
-    public static double NEW_P = 52; //40
+    public static double NEW_P = 0; //40
     public static double NEW_I = 0; //20
-    public static double NEW_D = 4.6; //25
-    public static double NEW_F = 14;
-    public static double valoare = 1620;
+    public static double NEW_D = 0; //25
+    public static double NEW_F = 0;
+    public static double valoare = 1310;
 
     public void runOpMode() {
         // get reference to DC motor.
@@ -56,10 +57,7 @@ public class PidTest extends LinearOpMode {
         outtakeMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "outtakeMotor");
         outtakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         outtakeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
-        pistonMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        pistonMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        servoPiston.initPiston(hardwareMap);
 
         Gamepad gp1 = gamepad1;
         Gamepad gp2 = gamepad2;
@@ -91,9 +89,8 @@ public class PidTest extends LinearOpMode {
                 cheie = false;
             }
 
-            if (gp1.right_bumper){
+            if(gp1.right_bumper)
                 outtakeMotor.setVelocity(valoare);
-            }
 
 
             dashboardTelemetry.addData("valoaree", outtakeMotor.getVelocity());
@@ -104,13 +101,15 @@ public class PidTest extends LinearOpMode {
     {
         for(int i=1;i<=rings;++i)
         {
-            pistonMotor.setPower(0.3);
-            pistonMotor.setTargetPosition(-165);
-            pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(300);
-            pistonMotor.setTargetPosition(0);
-            pistonMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(350);
+            movePiston(150);
         }
+    }
+
+    void movePiston(int timeToSleep)
+    {
+        servoPiston.open();
+        sleep(150);
+        servoPiston.close();
+        sleep(timeToSleep);
     }
 }

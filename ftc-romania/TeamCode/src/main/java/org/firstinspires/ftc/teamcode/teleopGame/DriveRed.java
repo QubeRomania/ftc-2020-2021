@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleopGame;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_block;
 import org.firstinspires.ftc.teamcode.hardware.servo_perete;
@@ -61,15 +63,18 @@ public class DriveRed extends LinearOpMode {
 
     //variabile outtake
     double outtakePower = 0;
-    double basePowerOuttake = 1310;
-    double powerShotPower = 1300;
+    double basePowerOuttake = 1300;
+    double powerShotPower = 1220;
     double powerUnit = 10;
     Boolean cheieOuttakeUp = Boolean.FALSE;
     Boolean cheieOuttakeDown = Boolean.FALSE;
     Boolean cheieOutake = Boolean.FALSE;
     Boolean okOuttake = Boolean.FALSE;
+    Boolean cheiePowershot = Boolean.FALSE;
+    Boolean okPowershot = Boolean.FALSE;
+    double lastPower = 0;
     //outtake pid coefficients
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(70, 0, 15, 14.5); // 70,0,15,14
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(60, 0, 14, 14.5); // 70,0,15,14 -- 60,0,14,14.5
 
     //variabile cutie
     servo_block servoBlock = new servo_block();
@@ -115,6 +120,9 @@ public class DriveRed extends LinearOpMode {
     Boolean isOpened = Boolean.FALSE;
 
     Vector2d towerVector = new Vector2d(125,26);
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     @Override
     public void runOpMode() {
@@ -238,6 +246,9 @@ public class DriveRed extends LinearOpMode {
             drive.intakeMotor.setPower(intakePower);
             //Power To Outtake
             drive.outtakeMotor.setVelocity(outtakePower);
+
+            dashboardTelemetry.addData("valoaree", drive.outtakeMotor.getVelocity());
+            dashboardTelemetry.update();
         }
     }
 
@@ -363,23 +374,8 @@ public class DriveRed extends LinearOpMode {
 
     void intakeController()
     {
-        //button x makes the intake turn reverse, else turn with trigger
-        if(gamepad2.x && !cheieIntake)
-        {
-            isRunning = !isRunning;
-            cheieIntake = !cheieIntake;
-        }
-        if(!(gamepad2.x))
-        {
-            cheieIntake = false;
-        }
-        if(isRunning)
-        {
-            intakePower = -1;
-        }
-        else {
-            intakePower = gamepad2.right_trigger*0.8;
-        }
+        //left trigger makes the intake turn reverse, else turn with trigger
+            intakePower = gamepad2.right_trigger*0.8 - gamepad2.left_trigger*0.8;
     }
 
     void outtakeController()
@@ -392,10 +388,30 @@ public class DriveRed extends LinearOpMode {
         if (!gamepad2.b) {
             cheieOutake = false;
         }
-        if (okOuttake)
-            outtakePower = basePowerOuttake;
-        else
+        if (okOuttake) {
+                outtakePower = basePowerOuttake;
+                lastPower = outtakePower;
+        }
+        else {
             outtakePower = 0;
+            lastPower= 0;
+        }
+
+        if(gamepad2.x && !cheiePowershot){
+            cheiePowershot = !cheiePowershot;
+            okPowershot = !okPowershot;
+        }
+        if(!gamepad2.x)
+        {
+            cheiePowershot = false;
+        }
+        if(okPowershot)
+        {
+            lastPower = outtakePower;
+            outtakePower = powerShotPower;
+        }
+        else
+            outtakePower = lastPower;
 
         //dpad gives more or less power to outtake motor
         if(gamepad2.dpad_up) {
